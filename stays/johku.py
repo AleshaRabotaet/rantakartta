@@ -277,12 +277,15 @@ def discover_product_urls(sitemap_xml: str, base_url: str, prefixes: list[str]) 
 
     Товарная страница — префикс плюс ровно один дополнительный сегмент пути
     (не сам раздел, не вложенные подстраницы)."""
-    ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     root = ElementTree.fromstring(sitemap_xml)
     host = urlparse(base_url).netloc
     prefixes = [p.rstrip("/") for p in prefixes]
     found: set[str] = set()
-    for loc in root.iterfind(".//sm:loc", ns):
+    # Namespace у sitemap.xml плавает между http:// и https:// в зависимости от витрины —
+    # матчим тег <loc> по локальному имени, без завязки на конкретный URI.
+    for loc in root.iter():
+        if not loc.tag.rpartition("}")[2] == "loc":
+            continue
         url = (loc.text or "").strip()
         parsed = urlparse(url)
         if parsed.netloc != host:
