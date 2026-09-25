@@ -13,6 +13,12 @@ hugonkauppa:
     - https://hugonkauppa.johku.com/en_US/hostell-huoneet-ja-sangyt  # комнаты/койко-места в тех же мёкках отдельным бронированием
   area: [61.3648320, 29.2090144]
 
+wildkarelia:
+  name: Wild Karelia — Kolmikanta Camping & Guesthouse
+  section_paths:
+    - https://wildkarelia.johku.com/en_US/leirintaalueen-palvelut
+  area: [62.7255326, 29.0186972]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
