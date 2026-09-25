@@ -112,6 +112,22 @@ def test_dedup_by_slug_keeps_first_occurrence():
     ]
 
 
+def test_dedup_by_image_keeps_first_occurrence():
+    """Один и тот же товар на двух локалях иногда получает РАЗНЫЙ slug (перевод), но
+    хозяин загружает одну и ту же фотографию для обеих версий — image остаётся
+    стабильным идентификатором, когда slug совпасть уже не помог (issue #6, Kalliola/
+    Pistohiekka/Nestorinranta в visitpuumala)."""
+    a = Listing(id="s:okkola-https-www-okkolanlomamokit-com-en", source="s", merchant="m",
+                title="Kalliola - hillside lake views", type="cottage", url="u",
+                image="https://cdn.johku.com/okkola/largefiles/533.jpg")
+    b = Listing(id="s:okkola-kalliola", source="s", merchant="m",
+                title="Kalliola - mahtavat näkymät", type="cottage", url="u",
+                image="https://cdn.johku.com/okkola/largefiles/533.jpg")
+    c = Listing(id="s:okkola-paulala", source="s", merchant="m", title="Paulala",
+                type="cottage", url="u", image="https://cdn.johku.com/okkola/largefiles/92.jpg")
+    assert johku.dedup_by_image([a, b, c]) == [a, c]
+
+
 def test_tervarumpu_product_parsed_with_cabin_type_and_no_street():
     html = (FIX / "product_tervarumpu_kuutinkamppa.html").read_text()
     item = johku.parse_product(

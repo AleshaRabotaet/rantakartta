@@ -311,6 +311,21 @@ def dedup_by_slug(urls: list[str]) -> list[str]:
     return out
 
 
+def dedup_by_image(items: list[Listing]) -> list[Listing]:
+    """Тот же товар на двух локалях иногда получает разный slug (перевод) — но хозяин
+    загружает одну и ту же фотографию для обеих версий, image остаётся стабильным
+    идентификатором, когда slug уже не совпал (issue #6, найдено на visitpuumala)."""
+    seen: set[str] = set()
+    out: list[Listing] = []
+    for item in items:
+        if item.image and item.image in seen:
+            continue
+        if item.image:
+            seen.add(item.image)
+        out.append(item)
+    return out
+
+
 def crawl(source_key: str, section_paths: str | list[str], limit: int | None = None) -> list[Listing]:
     if isinstance(section_paths, str):
         section_paths = [section_paths]
@@ -350,4 +365,4 @@ def crawl(source_key: str, section_paths: str | list[str], limit: int | None = N
         print(f"  {'+' if item else '-'} {slug}")
         if item:
             out.append(item)
-    return out
+    return dedup_by_image(out)
