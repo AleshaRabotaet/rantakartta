@@ -6,6 +6,13 @@
 # merchants: точки хозяев (ключ = префикс slug до первого "-"), нужны, когда у объекта нет адреса с улицей.
 # area: запасная точка — центр муниципалитета.
 
+hugonkauppa:
+  name: Hostel Hugon kauppa
+  section_paths:
+    - https://hugonkauppa.johku.com/en_US/majoitus  # 2 мёкки целиком
+    - https://hugonkauppa.johku.com/en_US/hostell-huoneet-ja-sangyt  # комнаты/койко-места в тех же мёкках отдельным бронированием
+  area: [61.3648320, 29.2090144]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
