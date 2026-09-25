@@ -62,6 +62,14 @@ vaalimaacamping:
     - https://vaalimaacamping.johku.com/fi_FI/majoitus  # тот же набор, другие slug — дедуп по фото
   area: [60.5096701, 27.5877293]
 
+nyyssanniemi:
+  name: Camping Nyyssänniemi
+  section_paths:
+    - https://nyyssis2020.johku.com/en_US/majoitus
+    - https://nyyssis2020.johku.com/en_US/mokit-2
+    - https://nyyssis2020.johku.com/en_US/aurorahut
+  area: [62.2579819, 24.7083599]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
