@@ -76,6 +76,16 @@ purolomat:
     - https://purolomat.johku.com/fi_FI/majoitukset  # en_US не существует (404) — только fi_FI
   area: [61.8582857, 21.5004374]
 
+rauhanlaakso:
+  name: Rauhanlaakson majoituspalvelut
+  section_paths:
+    - https://rauhanlaakso.johku.com/en_US/jokimokit
+    - https://rauhanlaakso.johku.com/en_US/huoneistot
+    - https://rauhanlaakso.johku.com/en_US/muut-kohteet
+    - https://rauhanlaakso.johku.com/en_US/mericamping
+    - https://rauhanlaakso.johku.com/en_US/pyorailijalle
+  area: [61.8582857, 21.5004374]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
