@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from stays import johku
-from stays.geocode import spread
+from stays.geocode import place, spread
 from stays.models import Listing
 
 FIX = Path(__file__).parent / "fixtures"
@@ -39,6 +39,8 @@ def test_classify():
     assert johku.classify(None, "Tent place on the shore of Nestorinranta") == "camping"
     assert johku.classify(None, "Glamping-teltta Lake Saimaa") == "glamping"
     assert johku.classify(None, "Tiny Guest House") == "hut"
+    assert johku.classify("Cabin", "Saarijärvi Forestry Hut") == "hut"
+    assert johku.classify("Cottage", "Latukka") == "cottage"
 
 
 def test_has_street():
@@ -50,6 +52,28 @@ def test_has_street():
 def test_parse_price_formats():
     assert johku.parse_price("1 250,00") == 1250.0
     assert johku.parse_price("26.00") == 26.0
+
+
+def test_tervarumpu_product_parsed_with_cabin_type_and_no_street():
+    html = (FIX / "product_tervarumpu_kuutinkamppa.html").read_text()
+    item = johku.parse_product(
+        html,
+        "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/kuutinkamppa",
+        "tervarumpu", "kuutinkamppa", 98.0,
+    )
+    assert item.merchant == "kuutinkamppa"
+    assert item.type == "hut"
+    assert item.beds == 6
+    assert not johku.has_street(item.address)
+
+
+def test_place_override_wins_and_is_exact():
+    item = Listing(id="tervarumpu:kuutinkamppa", source="tervarumpu", merchant="m",
+                    title="Kuutinkämppä", type="hut", url="u", address="52920 Voikoski")
+    place(item, geo=None, merchants={}, area=[61.19, 26.88],
+          overrides={"kuutinkamppa": {"lat": 61.1786093, "lon": 26.8470936}})
+    assert (item.lat, item.lon) == (61.1786093, 26.8470936)
+    assert item.precision == "exact"
 
 
 def test_spread_separates_same_point():

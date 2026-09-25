@@ -14,9 +14,15 @@ visitpuumala:
     mannilanniemi: {name: Mannilanniemi, lat: 61.66795, lon: 28.2560979}
     guidetiina:   {name: Taiga-tila (GuideTiina), lat: 61.5365531, lon: 27.8945858}
 
-# TODO: проверить путь раздела и точку после первого прогона
 tervarumpu:
   name: Tervarumpu (Repovesi)
+  merchant_name: Tervarumpu
   section_url: https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park
   area: [61.19, 26.88]
   merchants: {}
+  # Координаты хижин без адреса с улицей — найдены в Nominatim по названию (POI tourism=wilderness_hut).
+  # sammaltupa в Nominatim не найдена, оставлена без override (см. docs/sources.md).
+  overrides:
+    kuutinkamppa:   {lat: 61.1786093, lon: 26.8470936}
+    pihkapirtti:    {lat: 61.1823817, lon: 26.8446016}
+    savottakamppa:  {lat: 61.1977591, lon: 26.8824743}

@@ -9,7 +9,7 @@ import re
 import time
 from urllib.parse import urljoin, urlparse
 
-import requests
+import httpx
 from bs4 import BeautifulSoup
 
 from .models import Listing
@@ -38,13 +38,13 @@ EXCLUDE_TITLE_RE = re.compile(
 
 # ---------- сеть ----------
 
-def _session() -> requests.Session:
-    s = requests.Session()
-    s.headers["User-Agent"] = USER_AGENT
-    return s
+def _session() -> httpx.Client:
+    return httpx.Client(headers={"User-Agent": USER_AGENT}, follow_redirects=True)
 
 
-def fetch(session: requests.Session, url: str) -> str:
+def fetch(session: httpx.Client, url: str) -> str:
+    # requests/stdlib http.client stops at HTTP 103 Early Hints (Johku's Nuxt
+    # backend sends it) and returns an empty body; httpx handles 1xx correctly.
     time.sleep(REQUEST_DELAY_S)
     r = session.get(url, timeout=30)
     r.raise_for_status()
@@ -96,10 +96,15 @@ def html_to_lines(html: str) -> list[str]:
 
 
 def parse_properties(lines: list[str]) -> dict[str, str]:
-    """Собирает значения по меткам: всё между меткой и следующей меткой/разделом."""
+    """Собирает значения по меткам: всё между меткой и следующей меткой/разделом.
+
+    Метки распознаются только после первого заголовка раздела (General, Properties, ...) —
+    иначе одноимённый декоративный подзаголовок в тексте описания (например, "Location"
+    перед вступительным абзацем) перехватывает значение у настоящего поля."""
     props: dict[str, str] = {}
     current: str | None = None
     buf: list[str] = []
+    in_section = False
 
     def flush():
         if current and current not in props:
@@ -107,12 +112,13 @@ def parse_properties(lines: list[str]) -> dict[str, str]:
 
     for ln in lines:
         heading = ln.lstrip("#").strip()
-        if ln in LABELS:
-            flush()
-            current, buf = ln, []
-        elif heading in SECTION_HEADINGS:
+        if heading in SECTION_HEADINGS:
             flush()
             current, buf = None, []
+            in_section = True
+        elif in_section and ln in LABELS:
+            flush()
+            current, buf = ln, []
         elif current:
             buf.append(ln)
     flush()
@@ -142,6 +148,8 @@ def parse_merchant(lines: list[str]) -> str | None:
 
 
 def classify(apartment_type: str | None, title: str) -> str:
+    if apartment_type == "Cabin":
+        return "hut"
     t = f"{apartment_type or ''} {title}".lower()
     if re.search(r"tent place|hammock|caravan|boat place|telttapaikka|venepaikka", t):
         return "camping"
@@ -228,7 +236,7 @@ def crawl(source_key: str, section_url: str, limit: int | None = None) -> list[L
     for card in cards:
         try:
             html = fetch(s, card["url"])
-        except requests.RequestException as e:
+        except httpx.HTTPError as e:
             print(f"  ! {card['url']}: {e}")
             continue
         item = parse_product(html, card["url"], source_key, card["slug"], card["price_from"])
