@@ -139,6 +139,17 @@ h1 { font: 800 34px/1 var(--cond); letter-spacing: -0.01em; margin: 0 0 6px; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
 <script src="data.js"></script>
 <script>
+// TODO: заменить на реальный код сайта после регистрации на https://www.goatcounter.com
+const GOATCOUNTER_CODE = "rantakartta";
+
+(() => {
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "//gc.zgo.at/count.js";
+  s.dataset.goatcounter = `https://${GOATCOUNTER_CODE}.goatcounter.com/count`;
+  document.head.appendChild(s);
+})();
+
 const TYPES = {
   villa:    { label: "Вилла",   color: "var(--t-villa)" },
   cottage:  { label: "Коттедж", color: "var(--t-cottage)" },
@@ -158,6 +169,12 @@ const state = { q: "", types: new Set(), tags: new Set(), maxPrice: 350, exact: 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const eur = n => n == null ? "?" : "€" + Math.round(n);
+
+function track(path, title) {
+  try {
+    window.goatcounter?.count({ path, title, event: true });
+  } catch (e) { /* блокировщик рекламы или скрипт не загрузился */ }
+}
 
 // ---------- карта ----------
 const map = L.map("map", { zoomControl: true, preferCanvas: false }).setView([61.5, 28.1], 9);
