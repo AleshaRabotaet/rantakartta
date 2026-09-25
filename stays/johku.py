@@ -29,7 +29,7 @@ LABELS = [
     "Entertainment", "Kitchen equipment", "Number of kitchen sets", "Kitchen description",
     "Garden equipment", "Yard description", "Shore", "Shore description", "Parking",
     "Accessibility", "Activities", "Activities description", "Restrictions", "Services",
-    "Traffic connections", "Driving instructions",
+    "Traffic connections", "Driving instructions", "Languages",
 ]
 SECTION_HEADINGS = {"General", "Properties", "Connections and services", "Distances", "Enquiries", "Images"}
 
@@ -60,6 +60,7 @@ LABELS_FI = {
     "Aktiviteetit": "Activities",
     "Aktiviteettien kuvaus": "Activities description",
     "Rajoitukset": "Restrictions",
+    "Kielet": "Languages",
 }
 SECTION_HEADINGS_FI = {"Perustiedot", "Ominaisuudet", "Tiedustelut", "Kuvat", "Välimatkat"}
 ALL_SECTION_HEADINGS = SECTION_HEADINGS | SECTION_HEADINGS_FI
@@ -68,7 +69,8 @@ LABEL_ALIASES = {label: label for label in LABELS} | LABELS_FI
 
 # Всё, что продаётся в разделе жилья, но жильём не является.
 EXCLUDE_TITLE_RE = re.compile(
-    r"gift card|lahjakortti|paddling tour|canoeing tour|route|melontareitti", re.I
+    r"gift card|lahjakortti|paddling tour|canoeing tour|route|melontareitti|yleinen savusauna",
+    re.I,
 )
 
 

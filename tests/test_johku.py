@@ -36,6 +36,18 @@ def test_gift_cards_and_tours_skipped():
     assert johku.parse_product(html, "u", "s", "okkola-lahjakortti", 100.0) is None
 
 
+def test_shared_sauna_slot_skipped():
+    """Найдено на hugonkauppa (issue #6): общая (не персональная) сауна продаётся как
+    отдельный товар в разделе жилья, но это не жильё — забронировать можно только время
+    в сауне, общей для всех гостей."""
+    html = (
+        "<html><body><h1>Yleinen savusauna</h1><h3>General</h3><dl>"
+        "<dt>Location</dt><dd>Rautjärvi<br>Annanniementie 25, 56710 Rautjärvi</dd>"
+        "</dl></body></html>"
+    )
+    assert johku.parse_product(html, "u", "hugonkauppa", "yleinen-savusauna", 0.0) is None
+
+
 def test_classify():
     assert johku.classify("Villa", "Paulala") == "villa"
     assert johku.classify(None, 'B&B "Mari" for 2 people') == "room"
@@ -63,6 +75,20 @@ def test_user_agent_has_real_contact():
 def test_parse_price_formats():
     assert johku.parse_price("1 250,00") == 1250.0
     assert johku.parse_price("26.00") == 26.0
+
+
+def test_languages_label_does_not_swallow_location():
+    """Найдено на hugonkauppa:yleinen-savusauna (issue #6): метка Languages не была
+    в LABELS, значение "Suomi" приклеивалось к концу Location вместо отдельного поля,
+    ломая has_street() на честном адресе."""
+    html = (
+        "<html><body><h1>Hugo mökki</h1><h3>General</h3><dl>"
+        "<dt>Location</dt><dd>Rautjärvi<br>Annanniementie 25, 56710 Rautjärvi</dd>"
+        "<dt>Languages</dt><dd>Suomi</dd>"
+        "</dl></body></html>"
+    )
+    item = johku.parse_product(html, "u", "hugonkauppa", "hugo-mokki", 0.0)
+    assert item.address == "Annanniementie 25, 56710 Rautjärvi"
 
 
 def test_finnish_product_page_parsed_by_labels():
