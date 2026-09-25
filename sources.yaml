@@ -27,6 +27,14 @@ smashop:
     - https://smashop.johku.com/fi_FI/elamysmajoitus  # fi_FI даёт другие имена тем же домикам (Pihka/Naava/Kaisla) — dedup по фото
   area: [60.2966743, 24.5626272]
 
+jokiniemenmatkailu:
+  name: Jokiniemen Matkailu
+  section_paths:
+    - https://jokiniemenmatkailu.fi/en_US/cottages
+    - https://jokiniemenmatkailu.fi/fi_FI/mokit  # то же самое (проверено), не даёт новых, но дёшево оставить на случай появления новых
+    - https://jokiniemenmatkailu.fi/fi_FI/lomatalo-haavin-huoneet  # комнаты Lomatalo Haavi — только на fi_FI, нет en_US-раздела вовсе
+  area: [63.3659410, 27.3907106]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
