@@ -33,7 +33,7 @@ def test_hash_type_filter_applied_on_load(browser, static_server):
             "#types .chip",
             "els => els.map(el => [el.textContent, el.getAttribute('aria-pressed')])",
         )
-        matching = [state for label, state in pressed if "Глэмпинг" in label]
+        matching = [state for label, state in pressed if "Glamping" in label]
         if not matching:
             pytest.skip("в данных нет объектов типа glamping — чип не рендерится")
         assert "true" in matching
