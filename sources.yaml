@@ -1,0 +1,22 @@
+# Витрины для обхода. Ключ = source в id объектов.
+# merchants: точки хозяев (ключ = префикс slug до первого "-"), нужны, когда у объекта нет адреса с улицей.
+# area: запасная точка — центр муниципалитета.
+
+visitpuumala:
+  name: Visit Puumala
+  section_url: https://visitpuumala.johku.com/en_US/majoitus
+  area: [61.5230, 28.1768]
+  merchants:
+    okkola:       {name: Okkolan Lomamökit, lat: 61.4535086, lon: 28.1548852}
+    hanhiniitty:  {name: Hanhiniitty / Saimaa Canoeing, lat: 61.4561203, lon: 28.1514166}
+    nestorinranta: {name: Nestorinranta, lat: 61.427475, lon: 28.01269}
+    pistohiekka:  {name: Pistohiekka Resort, lat: 61.5570834, lon: 28.0099704}
+    mannilanniemi: {name: Mannilanniemi, lat: 61.66795, lon: 28.2560979}
+    guidetiina:   {name: Taiga-tila (GuideTiina), lat: 61.5365531, lon: 27.8945858}
+
+# TODO: проверить путь раздела и точку после первого прогона
+tervarumpu:
+  name: Tervarumpu (Repovesi)
+  section_url: https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park
+  area: [61.19, 26.88]
+  merchants: {}

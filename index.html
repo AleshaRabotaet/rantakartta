@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rantakartta: жильё у финских озёр</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛶</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;700&family=Sofia+Sans+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
+<style>
+:root {
+  --lake: #16324a;     /* глубокая вода: текст, виллы */
+  --water: #dce7ec;    /* мелководье: фоны */
+  --birch: #fafbf9;    /* берёза: панель */
+  --pine: #2e5a45;     /* сосна: коттеджи */
+  --berry: #c23a4b;    /* брусника: выделение */
+  --granite: #5f6b75;  /* гранит: второстепенный текст */
+  --line: #d5dde1;
+  --t-villa: #16324a; --t-cottage: #2e5a45; --t-room: #7b4a86;
+  --t-hut: #8a5f2c; --t-glamping: #2f7684; --t-camping: #5b6a26;
+  --sans: "Sofia Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --cond: "Sofia Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { font: 16px/1.45 var(--sans); color: var(--lake); background: var(--water); }
+.app { display: grid; grid-template-columns: 380px 1fr; height: 100%; }
+#map { height: 100%; background: var(--water); }
+
+/* ---------- панель ---------- */
+.panel { background: var(--birch); display: flex; flex-direction: column; min-height: 0;
+  border-right: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px); }
+.head { padding: 22px 22px 14px; }
+h1 { font: 800 34px/1 var(--cond); letter-spacing: -0.01em; margin: 0 0 6px; }
+.lede { margin: 0; color: var(--granite); font-size: 15px; max-width: 34ch; }
+.filters { padding: 4px 22px 16px; display: grid; gap: 14px; border-bottom: 1px solid var(--line); }
+.search { width: 100%; font: inherit; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: inherit; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 500 14px/1 var(--sans); padding: 7px 11px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid var(--line); background: #fff; color: var(--lake); display: inline-flex; gap: 6px; align-items: center; }
+.chip .dot { width: 9px; height: 9px; border-radius: 50%; }
+.chip .n { color: var(--granite); font-size: 12px; }
+.chip[aria-pressed="true"] { border-color: var(--lake); background: var(--lake); color: #fff; }
+.chip[aria-pressed="true"] .n { color: #c9d6de; }
+.row { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.row label { flex: none; color: var(--granite); }
+.row input[type=range] { flex: 1; accent-color: var(--lake); }
+.row output { font: 800 18px/1 var(--cond); min-width: 56px; text-align: right; }
+.toggle { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--granite); cursor: pointer; }
+.toggle input { accent-color: var(--lake); width: 16px; height: 16px; }
+:focus-visible { outline: 2.5px solid var(--berry); outline-offset: 2px; }
+
+.count { padding: 12px 22px 6px; font-size: 14px; color: var(--granite); display: flex; justify-content: space-between; }
+.list { list-style: none; margin: 0; padding: 0 12px 16px; overflow-y: auto; flex: 1; min-height: 0;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+.item { display: grid; grid-template-columns: 6px 1fr auto; gap: 12px; padding: 11px 10px; border-radius: 8px; cursor: pointer; }
+.item:hover, .item.active { background: var(--water); }
+.item .bar { border-radius: 3px; }
+.item .t { font-weight: 700; line-height: 1.2; }
+.item .m { font-size: 13px; color: var(--granite); }
+.item .p { font: 800 20px/1 var(--cond); align-self: center; white-space: nowrap; }
+.item .p small { font: 500 12px var(--sans); color: var(--granite); margin-right: 2px; }
+.empty { padding: 24px 22px; color: var(--granite); }
+.empty button { font: inherit; color: var(--berry); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+
+/* ---------- маркеры ---------- */
+.pill-icon { background: none; border: 0; }
+.pill { font: 800 15px/1 var(--cond); color: #fff; padding: 5px 8px 4px; border-radius: 999px; white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(22,50,74,.35); border: 2px solid #fff; transform: translate(-50%, -50%);
+  position: absolute; left: 0; top: 0; transition: transform .12s; }
+.pill.approx { border-style: dashed; }
+.pill.active { background: var(--berry) !important; transform: translate(-50%, -50%) scale(1.18); z-index: 1000; }
+.cluster { background: none; }
+.cluster div { width: 100%; height: 100%; border-radius: 50%; background: var(--lake); color: #fff; border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(22,50,74,.4); display: grid; place-content: center; text-align: center; }
+.cluster b { font: 800 18px/1 var(--cond); }
+.cluster span { font: 500 10px/1.1 var(--sans); opacity: .85; }
+
+.leaflet-popup-content-wrapper { border-radius: 10px; }
+.leaflet-popup-content { margin: 14px 16px; font: 15px/1.4 var(--sans); color: var(--lake); min-width: 220px; }
+.pop h3 { font: 800 22px/1.05 var(--cond); margin: 0 0 4px; }
+.pop .m { color: var(--granite); font-size: 13px; margin-bottom: 10px; }
+.pop .tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+.pop .tag { font-size: 12px; background: var(--water); padding: 3px 7px; border-radius: 4px; }
+.pop .note { font-size: 12px; color: var(--berry); margin: 6px 0 0; }
+.pop .go { display: block; text-align: center; margin-top: 12px; padding: 9px; border-radius: 8px;
+  background: var(--lake); color: #fff !important; text-decoration: none; font-weight: 700; }
+.pop .price { font: 800 20px var(--cond); }
+
+/* ---------- мобильный ---------- */
+.sheet-toggle { display: none; }
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+  #map { grid-row: 1; }
+  .panel { grid-row: 2; max-height: 38vh; border-right: 0; border-top: 1px solid var(--line); padding-top: 0;
+    transition: max-height .2s; }
+  .panel.open { max-height: 82vh; }
+  .panel { overflow-y: auto; }
+  .list { overflow: visible; flex: none; }
+  .sheet-toggle { display: block; width: 100%; border: 0; background: none; padding: 8px 0 0; cursor: pointer; }
+  .sheet-toggle::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto; }
+  .head { padding: 8px 18px 10px; }
+  h1 { font-size: 26px; }
+  .lede { display: none; }
+  .filters { padding: 0 18px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="panel" id="panel">
+    <button class="sheet-toggle" id="sheetToggle" aria-label="Развернуть список"></button>
+    <div class="head">
+      <h1>Rantakartta</h1>
+      <p class="lede">Жильё у небольших хозяев на финских озёрах. Бронирование на сайте хозяина.</p>
+    </div>
+    <div class="filters">
+      <input class="search" id="q" type="search" placeholder="Название или хозяин" aria-label="Поиск">
+      <div class="chips" id="types" role="group" aria-label="Тип жилья"></div>
+      <div class="row">
+        <label for="price">До</label>
+        <input id="price" type="range" min="20" max="350" step="10" value="350">
+        <output id="priceOut" for="price">€350</output>
+      </div>
+      <div class="chips" id="tags" role="group" aria-label="Удобства"></div>
+      <label class="toggle"><input type="checkbox" id="exact"> Только точные адреса</label>
+    </div>
+    <div class="count"><span id="count"></span><span id="updated"></span></div>
+    <ul class="list" id="list"></ul>
+  </aside>
+  <div id="map" role="region" aria-label="Карта"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<script src="data.js"></script>
+<script>
+const TYPES = {
+  villa:    { label: "Вилла",   color: "var(--t-villa)" },
+  cottage:  { label: "Коттедж", color: "var(--t-cottage)" },
+  room:     { label: "Комната / B&B", color: "var(--t-room)" },
+  hut:      { label: "Хижина",  color: "var(--t-hut)" },
+  glamping: { label: "Глэмпинг", color: "var(--t-glamping)" },
+  camping:  { label: "Палатка / кемпер", color: "var(--t-camping)" },
+};
+const TAGS = { sauna: "Сауна", shore_sauna: "Сауна на берегу", lake: "У воды", pets: "Можно с животными" };
+const PRECISION_NOTE = {
+  merchant: "Точка хозяина: сам объект где-то поблизости.",
+  area: "Примерное место: указан только район.",
+};
+
+const data = (window.LISTINGS || []).filter(d => d.lat != null);
+const state = { q: "", types: new Set(), tags: new Set(), maxPrice: 350, exact: false, active: null };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const eur = n => n == null ? "?" : "€" + Math.round(n);
+
+// ---------- карта ----------
+const map = L.map("map", { zoomControl: true, preferCanvas: false }).setView([61.5, 28.1], 9);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+  maxZoom: 18, subdomains: "abcd",
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+}).addTo(map);
+
+const cluster = L.markerClusterGroup({
+  showCoverageOnHover: false, maxClusterRadius: 45, spiderfyOnMaxZoom: true,
+  iconCreateFunction(c) {
+    const kids = c.getAllChildMarkers();
+    const min = Math.min(...kids.map(m => m.options.item.price_from ?? Infinity));
+    const size = kids.length > 9 ? 58 : 50;
+    return L.divIcon({
+      className: "cluster", iconSize: [size, size],
+      html: `<div><b>${kids.length}</b><span>от ${eur(min)}</span></div>`,
+    });
+  },
+});
+map.addLayer(cluster);
+
+const markers = new Map();
+for (const d of data) {
+  const m = L.marker([d.lat, d.lon], { item: d, icon: pillIcon(d, false), keyboard: true, title: d.title });
+  m.bindPopup(() => popup(d), { maxWidth: 280 });
+  m.on("popupopen", () => select(d.id, false));
+  markers.set(d.id, m);
+}
+
+function pillIcon(d, active) {
+  const cls = ["pill", d.precision !== "exact" ? "approx" : "", active ? "active" : ""].join(" ");
+  return L.divIcon({
+    className: "pill-icon", iconSize: [0, 0], popupAnchor: [0, -16],
+    html: `<div class="${cls}" style="background:${TYPES[d.type]?.color || "var(--lake)"}">${eur(d.price_from)}</div>`,
+  });
+}
+
+function popup(d) {
+  const tags = (d.tags || []).filter(t => TAGS[t]).map(t => `<span class="tag">${TAGS[t]}</span>`).join("");
+  return `<div class="pop">
+    <h3>${esc(d.title)}</h3>
+    <div class="m">${esc(d.merchant)}</div>
+    <div><span class="price">от ${eur(d.price_from)}</span> за сутки${d.beds ? `, мест: ${d.beds}` : ""}</div>
+    <div class="m">${TYPES[d.type]?.label || ""}</div>
+    ${tags ? `<div class="tags">${tags}</div>` : ""}
+    ${PRECISION_NOTE[d.precision] ? `<p class="note">${PRECISION_NOTE[d.precision]}</p>` : ""}
+    <a class="go" href="${esc(d.url)}" target="_blank" rel="noopener">Открыть у хозяина</a>
+  </div>`;
+}
+
+// ---------- фильтры ----------
+function matches(d, skip) {
+  if (skip !== "types" && state.types.size && !state.types.has(d.type)) return false;
+  if (skip !== "tags") for (const t of state.tags) if (!(d.tags || []).includes(t)) return false;
+  if (d.price_from != null && d.price_from > state.maxPrice) return false;
+  if (state.exact && d.precision !== "exact") return false;
+  if (state.q) {
+    const hay = `${d.title} ${d.merchant}`.toLowerCase();
+    if (!hay.includes(state.q)) return false;
+  }
+  return true;
+}
+
+function renderChips(el, defs, set, key, counter) {
+  el.innerHTML = "";
+  for (const [k, def] of Object.entries(defs)) {
+    const n = counter(k);
+    if (!n && !set.has(k)) continue;
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.setAttribute("aria-pressed", set.has(k));
+    b.innerHTML = (def.color ? `<span class="dot" style="background:${def.color}"></span>` : "") +
+      `${esc(def.label || def)} <span class="n">${n}</span>`;
+    b.onclick = () => { set.has(k) ? set.delete(k) : set.add(k); render(); };
+    el.appendChild(b);
+  }
+  if (!el.children.length) el.style.display = "none"; else el.style.display = "";
+}
+
+function render(fit) {
+  const shown = data.filter(d => matches(d));
+  renderChips($("types"), TYPES, state.types, "types", t => data.filter(d => d.type === t && matches(d, "types")).length);
+  renderChips($("tags"), TAGS, state.tags, "tags", t => data.filter(d => (d.tags || []).includes(t) && matches(d, "tags")).length);
+
+  cluster.clearLayers();
+  cluster.addLayers(shown.map(d => markers.get(d.id)));
+  if (fit && shown.length) map.fitBounds(L.latLngBounds(shown.map(d => [d.lat, d.lon])).pad(0.15));
+
+  $("count").textContent = `${shown.length} из ${data.length}`;
+  const list = $("list");
+  if (!shown.length) {
+    list.innerHTML = `<li class="empty">Под фильтры ничего не подходит. <button id="reset">Сбросить фильтры</button></li>`;
+    $("reset").onclick = reset;
+    return;
+  }
+  list.innerHTML = shown.sort((a, b) => (a.price_from ?? 1e9) - (b.price_from ?? 1e9)).map(d => `
+    <li class="item${state.active === d.id ? " active" : ""}" data-id="${esc(d.id)}" tabindex="0">
+      <span class="bar" style="background:${TYPES[d.type]?.color}"></span>
+      <div><div class="t">${esc(d.title)}</div><div class="m">${esc(d.merchant)}</div></div>
+      <div class="p"><small>от</small>${eur(d.price_from)}</div>
+    </li>`).join("");
+}
+
+function select(id, open = true) {
+  if (state.active && markers.has(state.active)) {
+    const prev = markers.get(state.active);
+    prev.setIcon(pillIcon(prev.options.item, false));
+  }
+  state.active = id;
+  const m = markers.get(id);
+  m.setIcon(pillIcon(m.options.item, true));
+  document.querySelectorAll(".item").forEach(li => li.classList.toggle("active", li.dataset.id === id));
+  if (open) cluster.zoomToShowLayer(m, () => m.openPopup());
+}
+
+function reset() {
+  state.q = ""; state.types.clear(); state.tags.clear(); state.maxPrice = 350; state.exact = false;
+  $("q").value = ""; $("price").value = 350; $("priceOut").textContent = "€350"; $("exact").checked = false;
+  render(true);
+}
+
+$("list").addEventListener("click", e => { const li = e.target.closest(".item"); if (li) select(li.dataset.id); });
+$("list").addEventListener("keydown", e => { if (e.key === "Enter") { const li = e.target.closest(".item"); if (li) select(li.dataset.id); } });
+$("q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
+$("price").addEventListener("input", e => { state.maxPrice = +e.target.value; $("priceOut").textContent = eur(state.maxPrice); render(); });
+$("exact").addEventListener("change", e => { state.exact = e.target.checked; render(); });
+$("sheetToggle").addEventListener("click", () => $("panel").classList.toggle("open"));
+map.on("popupclose", () => { if (state.active) { const m = markers.get(state.active); m.setIcon(pillIcon(m.options.item, false)); state.active = null; } });
+if (window.LISTINGS_UPDATED) $("updated").textContent = "данные от " + window.LISTINGS_UPDATED.split("-").reverse().join(".");
+
+render(true);
+</script>
+</body>
+</html>
