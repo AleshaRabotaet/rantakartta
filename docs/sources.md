@@ -1,14 +1,50 @@
 # Источники данных
 
-| Источник | Статус | Заметки |
-|---|---|---|
-| visitpuumala.johku.com (en_US + fi_FI) | обход готов, геокодинг проверен | 60 жильё (было 51); 48 exact, 8 merchant, 4 area. **+9 объектов бэкфилла (issue #6, 2026-09-25)**: мерчанты Metsäsydän (5) и B&B Rönölä (4) существовали только на fi_FI — см. ниже |
-| tervarumpu.fi (Repovesi + Verla) | обход готов, 20/20 жильё | Johku на своём домене (Nuxt); 4 хижины Repovesi без своего хозяина — `merchant_name: Tervarumpu`, координаты — `overrides` (3 сверены с OSM `tourism=wilderness_hut`, sammaltupa — из JSON-LD на странице продукта). **+16 объектов бэкфилла (issue #6, 2026-09-25)**: 5-я хижина Repovesi (`harjulanmokit-jakalatupa`) и весь раздел «Majoittuminen Verlassa» (14 домиков) существовали только на fi_FI, не были переведены на en_US — см. ниже |
-| Другие Johku-витрины | TODO найти | искать по `johku.com/en_US` и `cdn.johku.com` |
-| Visit Finland DataHub | TODO | бесплатный API, нужна регистрация публикатора; без цен и доступности |
-| Johku REST API | ждём ответа | доступ только по запросу; маленькая компания (3 чел., оборот ~€0,4 млн) |
+Найдено через `johku_catalog.xlsx`, приложенный к issue #6 (владельцем проекта), плюс
+собственная проверка каждого сайта (robots.txt, реальный раздел жилья, метки, дедуп).
+15 кандидатов: 13 конкретных витрин + 2 региональных «зонтичных» портала.
+
+## Подключены (issue #6, 2026-09-25)
+
+| Источник | Кол-во | Precision | Заметки |
+|---|---|---|---|
+| visitpuumala.johku.com (en_US + fi_FI) | 60 (было 51) | 48 exact, 8 merchant, 4 area | **+9 бэкфилл**: мерчанты Metsäsydän (5), B&B Rönölä (4) существовали только на fi_FI — см. ниже |
+| tervarumpu.fi (Repovesi + Verla) | 20 (было 4) | 18 exact, 1 area, 1 merchant | **+16 бэкфилл**: раздел «Majoittuminen Verlassa» (14 домиков) и 5-я хижина Repovesi существовали только на fi_FI — см. ниже |
+| huoneistohotellimarja.fi, Mikkeli | 16 | 15 exact, 1 area | Апарт-отель, гостиничная + хостельная стороны |
+| jokiniemenmatkailu.fi, Lapinlahti (Alapitkä) | 13 | 13 area | Честный адрес с улицей у всех, но частная дорога не в OSM/Nominatim |
+| wildkarelia.johku.com, Outokumpu | 13 | 13 exact | Кемпинг + гостевой дом; переговорка/банкетный зал и аренда джакузи-бочки отфильтрованы (не жильё) |
+| rauhanlaakso.johku.com, Merikarvia | 12 | 12 exact | 5 разделов по типу объекта (jokimökit/huoneistot/muut kohteet/mericamping/для велосипедистов) |
+| hugonkauppa.johku.com, Rautjärvi | 8 | 8 exact | 2 мёкки целиком + комнаты/койко-места в них отдельным бронированием |
+| smashop.johku.com (SMA Group — Päremajat), Nuuksio (Espoo) | 4 | 4 exact | Эко-домики (Pihka, Naava, Kaisla, Karhunpesä) |
+| vaalimaacamping.johku.com, Virolahti | 4 | 3 exact, 1 area | На Финском заливе у погранперехода |
+| hotellinuuksio.johku.com, Nuuksio (Espoo) | 3 | 2 exact, 1 area | Номера отеля у нацпарка Нуукссио |
+| kolinruno.johku.com, Koli (Lieksa) | 3 | 3 exact | B&B у нацпарка Коли |
+| nyyssis2020.johku.com (Camping Nyyssänniemi), Keuruu | 3 | 2 exact, 1 area | Кемпинг, каравано-места, плавучая стеклянная игла |
+| purolomat.johku.com, Merikarvia | 2 | 2 exact | Первая полностью финская витрина (en_US не существует) |
+| wildmaker.johku.com, Muonio (Lappi) | 2 | 2 exact | Брёвенчатые домики |
+
+**Итого: 14 витрин на карте, 163 объекта, 132/163 (81%) precision exact.**
+
+## Не подключены
+
+| Источник | Причина |
+|---|---|
+| ukonhonka.johku.com | Дубликат — тот же хозяин уже на карте через visitpuumala (совпадают слаги/адреса/CDN-бакет `cdn.johku.com/ukonhonka/...`) |
+| iisalmijatienoot.fi (региональный портал, Iisalmi ja tienoot) | SPA на Nuxt — карточки товара подгружаются JS-запросом к API, ни в HTML, ни в `googlesitemap.xml` нет ссылок на конкретные объекты. Нужен реверс API или headless-браузер — отдельная фича со своими тестами |
+| lhgeopark.johku.com (региональный портал, Lauhanvuori-Hämeenkangas Geopark) | То же самое — SPA, недоступно текущему парсеру |
+| Visit Finland DataHub | TODO — бесплатный API, нужна регистрация публикатора; без цен и доступности |
+| Johku REST API | Ждём ответа — доступ только по запросу; маленькая компания (3 чел., оборот ~€0,4 млн) |
 
 Контакт Johku: Ilkka Lariola, ilkka@johku.com (экосистема и новые клиенты).
+
+## Как искали (issue #6)
+
+Метод из `johku_catalog.xlsx`: google-дорки (`site:johku.com mökki OR mökit OR majoitus
+OR hotelli`, `"fi_FI" "majoitus" -site:johku.com`), поиск региональных «зонтичных» витрин
+(один портал = много мелких объектов на одной Johku-платформе), проверка признаков Johku
+(поддомен `*.johku.com`, структура URL `/fi_FI/`/`/en_US/`, `cdn.johku.com`, «Aptual
+Commerce Oy» в политике конфиденциальности, "Powered by Johku"). Официального каталога
+всех витрин Johku не существует (ни на johku.fi, ни на johku.com).
 
 ## Tervarumpu: детали обхода (2026-09-25)
 
