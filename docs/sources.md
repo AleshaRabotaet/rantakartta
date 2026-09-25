@@ -1,14 +1,50 @@
 # Источники данных
 
-| Источник | Статус | Заметки |
-|---|---|---|
-| visitpuumala.johku.com/en_US/majoitus | обход готов, геокодинг проверен | 57 карточек, 51 жильё; 48/51 precision exact, 3 — merchant (см. ниже) |
-| tervarumpu.fi/en_US/accommodation-in-repovesi-national-park | обход готов, 4/4 жильё | Johku на своём домене (Nuxt); хижины Repovesi без своего хозяина на карте — `merchant_name: Tervarumpu`. У всех 4 нет улицы в адресе, координаты — `overrides` в sources.yaml: 3 сверены с точками OSM `tourism=wilderness_hut`, sammaltupa (в OSM не картографирована) — из structured data на странице продукта Johku (`latitude`/`longitude` в JSON-LD, публикует сам хозяин) |
-| Другие Johku-витрины | TODO найти | искать по `johku.com/en_US` и `cdn.johku.com` |
-| Visit Finland DataHub | TODO | бесплатный API, нужна регистрация публикатора; без цен и доступности |
-| Johku REST API | ждём ответа | доступ только по запросу; маленькая компания (3 чел., оборот ~€0,4 млн) |
+Найдено через `johku_catalog.xlsx`, приложенный к issue #6 (владельцем проекта), плюс
+собственная проверка каждого сайта (robots.txt, реальный раздел жилья, метки, дедуп).
+15 кандидатов: 13 конкретных витрин + 2 региональных «зонтичных» портала.
+
+## Подключены (issue #6, 2026-09-25)
+
+| Источник | Кол-во | Precision | Заметки |
+|---|---|---|---|
+| visitpuumala.johku.com (en_US + fi_FI) | 60 (было 51) | 48 exact, 8 merchant, 4 area | **+9 бэкфилл**: мерчанты Metsäsydän (5), B&B Rönölä (4) существовали только на fi_FI — см. ниже |
+| tervarumpu.fi (Repovesi + Verla) | 20 (было 4) | 18 exact, 1 area, 1 merchant | **+16 бэкфилл**: раздел «Majoittuminen Verlassa» (14 домиков) и 5-я хижина Repovesi существовали только на fi_FI — см. ниже |
+| huoneistohotellimarja.fi, Mikkeli | 16 | 15 exact, 1 area | Апарт-отель, гостиничная + хостельная стороны |
+| jokiniemenmatkailu.fi, Lapinlahti (Alapitkä) | 13 | 13 area | Честный адрес с улицей у всех, но частная дорога не в OSM/Nominatim |
+| wildkarelia.johku.com, Outokumpu | 13 | 13 exact | Кемпинг + гостевой дом; переговорка/банкетный зал и аренда джакузи-бочки отфильтрованы (не жильё) |
+| rauhanlaakso.johku.com, Merikarvia | 12 | 12 exact | 5 разделов по типу объекта (jokimökit/huoneistot/muut kohteet/mericamping/для велосипедистов) |
+| hugonkauppa.johku.com, Rautjärvi | 8 | 8 exact | 2 мёкки целиком + комнаты/койко-места в них отдельным бронированием |
+| smashop.johku.com (SMA Group — Päremajat), Nuuksio (Espoo) | 4 | 4 exact | Эко-домики (Pihka, Naava, Kaisla, Karhunpesä) |
+| vaalimaacamping.johku.com, Virolahti | 4 | 3 exact, 1 area | На Финском заливе у погранперехода |
+| hotellinuuksio.johku.com, Nuuksio (Espoo) | 3 | 2 exact, 1 area | Номера отеля у нацпарка Нуукссио |
+| kolinruno.johku.com, Koli (Lieksa) | 3 | 3 exact | B&B у нацпарка Коли |
+| nyyssis2020.johku.com (Camping Nyyssänniemi), Keuruu | 3 | 2 exact, 1 area | Кемпинг, каравано-места, плавучая стеклянная игла |
+| purolomat.johku.com, Merikarvia | 2 | 2 exact | Первая полностью финская витрина (en_US не существует) |
+| wildmaker.johku.com, Muonio (Lappi) | 2 | 2 exact | Брёвенчатые домики |
+
+**Итого: 14 витрин на карте, 163 объекта, 132/163 (81%) precision exact.**
+
+## Не подключены
+
+| Источник | Причина |
+|---|---|
+| ukonhonka.johku.com | Дубликат — тот же хозяин уже на карте через visitpuumala (совпадают слаги/адреса/CDN-бакет `cdn.johku.com/ukonhonka/...`) |
+| iisalmijatienoot.fi (региональный портал, Iisalmi ja tienoot) | SPA на Nuxt — карточки товара подгружаются JS-запросом к API, ни в HTML, ни в `googlesitemap.xml` нет ссылок на конкретные объекты. Нужен реверс API или headless-браузер — отдельная фича со своими тестами |
+| lhgeopark.johku.com (региональный портал, Lauhanvuori-Hämeenkangas Geopark) | То же самое — SPA, недоступно текущему парсеру |
+| Visit Finland DataHub | TODO — бесплатный API, нужна регистрация публикатора; без цен и доступности |
+| Johku REST API | Ждём ответа — доступ только по запросу; маленькая компания (3 чел., оборот ~€0,4 млн) |
 
 Контакт Johku: Ilkka Lariola, ilkka@johku.com (экосистема и новые клиенты).
+
+## Как искали (issue #6)
+
+Метод из `johku_catalog.xlsx`: google-дорки (`site:johku.com mökki OR mökit OR majoitus
+OR hotelli`, `"fi_FI" "majoitus" -site:johku.com`), поиск региональных «зонтичных» витрин
+(один портал = много мелких объектов на одной Johku-платформе), проверка признаков Johku
+(поддомен `*.johku.com`, структура URL `/fi_FI/`/`/en_US/`, `cdn.johku.com`, «Aptual
+Commerce Oy» в политике конфиденциальности, "Powered by Johku"). Официального каталога
+всех витрин Johku не существует (ни на johku.fi, ни на johku.com).
 
 ## Tervarumpu: детали обхода (2026-09-25)
 
@@ -93,3 +129,70 @@ Metso) отдают одну и ту же точку на троих** (`61.6676
 issue #3 в части «найти координаты домиков»: способ оказался не OSM (домики там не картографированы),
 а JSON-LD с самой страницы Johku — тот же источник, что уже использовался для `sammaltupa`, теперь
 проверенный на независимом geocode-сравнении и применённый системно.
+
+## Tervarumpu: бэкфилл fi_FI-only объектов (2026-09-25, issue #6)
+
+При поиске новых Johku-витрин для issue #6 выяснилось: часть разделов сайта существует только
+на fi_FI и никогда не была переведена на en_US, поэтому обход (который до сих пор ходил только
+по `/en_US/accommodation-in-repovesi-national-park`) их не видел:
+
+- **5-я хижина Repovesi** — `harjulanmokit-jakalatupa` (Harjulan Mökit), есть только на
+  `/fi_FI/majoittuminen-repovedella` (тот же раздел, что и остальные 4 хижины на английском —
+  просто эта одна не переведена).
+- **Целый раздел «Majoittuminen Verlassa»** — 14 домиков в усадьбе Verla (объект Всемирного
+  наследия ЮНЕСКО, ~30 мин от Repovesi, отдельная локация), хозяин — Verlan Mökit / Repovalkea Oy.
+  Раздела на en_US для Verla нет вообще, ни одной ссылки.
+
+Для этого в `stays/johku.py` добавлен разбор финских меток (`LABELS_FI`, маркеры мерчанта
+`Kauppias`/`Tiedustelut`) — метки те же самые, что и на en_US, просто на другом языке, страница
+устроена идентично. Обход переведён с парсинга ссылок одной HTML-страницы на
+`googlesitemap.xml` витрины — так все fi_FI-only разделы становятся видны обходу наравне с
+en_US, без ручного угадывания nav-ссылок (`sources.yaml: tervarumpu.section_paths` — теперь
+список из 3 URL: en_US Repovesi + fi_FI Repovesi + fi_FI Verla).
+
+**Геокодинг**: у всех 14 домиков Verla есть честный адрес с улицей (`Verlantie NNN, 47850 Verla`
+и т.п.) — 18/20 итоговых объектов (считая старые 4 Repovesi) получили `exact` с первого/второго
+прогона (Nominatim иногда отдаёт `429` на этой сети — повторный прогон добирает недостающее из
+кэша/повторных попыток, тот же паттерн, что и в issue #3). Добавлен `merchants.verla` — точка
+центра усадьбы Verla (геокодирована по названию) как запасной якорь на случай сбоя geocode для
+конкретного домика, а не area-точка Repovesi (другой нацпарк, соврать точку на карте нечестно).
+Два исключения, оба честно не `exact`:
+- `harjulanmokit-jakalatupa` — адрес `Ukkolammentie 151, 52920 Voikoski` Nominatim не находит
+  (тот же паттерн: частные лесные дороги не всегда картографированы) — остаётся на area-точке
+  Repovesi (Voikoski — часть того же нацпарка, географически честно).
+- `verla-verlan-uittotupa` — адрес `Kartisapolku, 47850 Verla` без номера дома — остаётся на
+  merchant-точке `verla`.
+
+Имя хозяина `Harjulan Mökit` (для 5-й хижины Repovesi) не выделено отдельно в `merchants` —
+без адреса-якоря отдельная запись не нужна, объект и так получает честную area-точку; хозяин
+отображается общим `merchant_name: Tervarumpu`, как и остальные хижины парка (сознательное
+упрощение, не искажение данных).
+
+## Visit Puumala: бэкфилл fi_FI-only мерчантов (2026-09-25, issue #6)
+
+Тот же паттерн, что и у Tervarumpu: `sources.yaml: visitpuumala.section_paths` дополнен
+`https://visitpuumala.johku.com/fi_FI/majoitus` — раздел жилья тот же самый URL, что и
+en_US (`/majoitus`), просто на другом языке, отдаёт совсем других мерчантов:
+
+- **Metsäsydän** (5 домиков) — адрес без номера дома (`Junninmäentie, 52200 Puumala`),
+  `has_street()` честно `False`, объекты на `merchant`-точке (геокодирована сама улица
+  без номера — `merchants.metsasydan` в sources.yaml).
+- **B&B Rönölä** (4 объекта, «Aamiaiskori» — не жильё, доп. услуга, сам отсеялся по меткам)
+  — честный адрес с улицей и номером (`Matikkalantie 731, 58720 Kaartilankoski`), но
+  Nominatim его не находит (тот же паттерн, что и у части домиков Puumala/Tervarumpu) —
+  остаются на `area`.
+
+**Дубликаты, которые НЕ добавлены** — та же карточка внутри уже существующих мерчантов
+(okkola/pistohiekka/nestorinranta) на fi_FI иногда получает совсем другой slug (не
+машинный перевод, а другое читаемое имя), из-за чего простой дедуп по slug их не ловит:
+`okkola-kalliola` (= `okkola-https-www-okkolanlomamokit-com-en`, Kalliola — то же фото,
+те же места), `pistohiekka-mokki-pistohiekka-resort` (= `...cottage-pistohiekka-resort`),
+`nestorinranta-mari-aittahuone`/`ville-aittahuone` (= `nestorinranta-mari-ja-ville-aittahuone`
+и `-2`). Все подтверждены по совпадению `image` (тот же файл на `cdn.johku.com`) — обход
+теперь дедуплицирует по фото, когда slug не совпал (`stays/johku.py: dedup_by_image`),
+оставляя версию с более точными координатами (у английских уже были ручные `overrides`).
+
+Заодно на объекте `ronola-lammaspaimeneksi` нашлась метка `Rakentamisvuosi` (Construction
+year) и заголовок `Välimatkat` (Distances), не встретившиеся раньше на выборке страниц —
+без них значение `Location` "проглатывало" год постройки и список расстояний как свой
+текст. Добавлены в `LABELS_FI`/`SECTION_HEADINGS_FI`.

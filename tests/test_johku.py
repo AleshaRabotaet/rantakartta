@@ -36,6 +36,28 @@ def test_gift_cards_and_tours_skipped():
     assert johku.parse_product(html, "u", "s", "okkola-lahjakortti", 100.0) is None
 
 
+def test_meeting_room_and_equipment_rental_skipped():
+    """Найдено на wildkarelia (issue #6): переговорка/банкетный зал и мобильная бочка-
+    джакузи напрокат продаются в том же разделе, что и жильё, но это не жильё —
+    переночевать там нельзя."""
+    for title in ("Meeting Room or Banquet Hall (80 people)", '"Saunatupa" meeting room & sauna',
+                  "Hot tub in a trailer with the lid"):
+        html = f"<html><body><h1>{title}</h1></body></html>"
+        assert johku.parse_product(html, "u", "wildkarelia", "x", 100.0) is None
+
+
+def test_shared_sauna_slot_skipped():
+    """Найдено на hugonkauppa (issue #6): общая (не персональная) сауна продаётся как
+    отдельный товар в разделе жилья, но это не жильё — забронировать можно только время
+    в сауне, общей для всех гостей."""
+    html = (
+        "<html><body><h1>Yleinen savusauna</h1><h3>General</h3><dl>"
+        "<dt>Location</dt><dd>Rautjärvi<br>Annanniementie 25, 56710 Rautjärvi</dd>"
+        "</dl></body></html>"
+    )
+    assert johku.parse_product(html, "u", "hugonkauppa", "yleinen-savusauna", 0.0) is None
+
+
 def test_classify():
     assert johku.classify("Villa", "Paulala") == "villa"
     assert johku.classify(None, 'B&B "Mari" for 2 people') == "room"
@@ -63,6 +85,103 @@ def test_user_agent_has_real_contact():
 def test_parse_price_formats():
     assert johku.parse_price("1 250,00") == 1250.0
     assert johku.parse_price("26.00") == 26.0
+
+
+def test_languages_label_does_not_swallow_location():
+    """Найдено на hugonkauppa:yleinen-savusauna (issue #6): метка Languages не была
+    в LABELS, значение "Suomi" приклеивалось к концу Location вместо отдельного поля,
+    ломая has_street() на честном адресе."""
+    html = (
+        "<html><body><h1>Hugo mökki</h1><h3>General</h3><dl>"
+        "<dt>Location</dt><dd>Rautjärvi<br>Annanniementie 25, 56710 Rautjärvi</dd>"
+        "<dt>Languages</dt><dd>Suomi</dd>"
+        "</dl></body></html>"
+    )
+    item = johku.parse_product(html, "u", "hugonkauppa", "hugo-mokki", 0.0)
+    assert item.address == "Annanniementie 25, 56710 Rautjärvi"
+
+
+def test_finnish_product_page_parsed_by_labels():
+    """Часть Johku-витрин заводит объекты только на fi_FI и не переводит их (см.
+    docs/decisions.md) — парсер должен понимать финские метки наравне с en_US."""
+    html = (FIX / "product_verla_janis_fi.html").read_text()
+    item = johku.parse_product(
+        html,
+        "https://tervarumpu.fi/fi_FI/majoittuminen-verlassa/verla-hirsniemen-janis",
+        "tervarumpu", "verla-hirsniemen-janis", 79.0,
+    )
+    assert item.title == "Hirsniemen Jänis"
+    assert item.merchant == "Verlan Mökit / Repovalkea Oy"
+    assert item.type == "hut"
+    assert item.beds == 2
+    assert item.address == "Verlantie 287, 47850 Verla"
+    assert johku.has_street(item.address)
+    assert item.tags == ["car_needed", "lake", "pets", "sauna", "shore_sauna"]
+
+
+def test_finnish_construction_year_and_distances_heading_recognized():
+    """Найдено на реальной странице visitpuumala:ronola-lammaspaimeneksi (issue #6):
+    метка Rakentamisvuosi и заголовок Välimatkat не были в LABELS_FI/SECTION_HEADINGS_FI,
+    из-за чего значение Location "проглатывало" год постройки и расстояния как свой
+    текст, вместо того чтобы стать отдельными полями."""
+    html = (
+        "<html><head><meta property='og:title' content='B&amp;B Rönölä'></head><body>"
+        "<h1>Rönölä</h1><h3>Perustiedot</h3><dl>"
+        "<dt>Sijainti</dt><dd>Puumala<br>Matikkalantie 731, 58720 Kaartilankoski</dd>"
+        "<dt>Rakentamisvuosi</dt><dd>1800</dd>"
+        "</dl><h3>Ominaisuudet</h3><dl>"
+        "<dt>Rajoitukset</dt><dd>Lemmikkieläimet kielletty</dd>"
+        "</dl><h3>Välimatkat</h3><p>Sulkava 16 km</p>"
+        "</body></html>"
+    )
+    item = johku.parse_product(html, "u", "visitpuumala", "ronola-lammaspaimeneksi", 90.0)
+    assert item.address == "Matikkalantie 731, 58720 Kaartilankoski"
+    assert johku.has_street(item.address)
+
+
+def test_discover_product_urls_filters_by_prefix_and_depth():
+    """Обход через googlesitemap.xml: берём только товарные страницы под известными
+    префиксами (раздел жилья), не сам раздел и не посторонние страницы сайта."""
+    xml = (FIX / "sitemap_sample.xml").read_text()
+    urls = johku.discover_product_urls(
+        xml,
+        "https://tervarumpu.fi",
+        ["/en_US/accommodation-in-repovesi-national-park", "/fi_FI/majoittuminen-verlassa"],
+    )
+    assert urls == [
+        "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/kuutinkamppa",
+        "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/sammaltupa",
+        "https://tervarumpu.fi/fi_FI/majoittuminen-verlassa/verla-hirsniemen-janis",
+        "https://tervarumpu.fi/fi_FI/majoittuminen-verlassa/verla-hirsniemen-mayra",
+    ]
+
+
+def test_dedup_by_slug_keeps_first_occurrence():
+    urls = [
+        "https://x.johku.com/en_US/majoitus/okkola-aapola",
+        "https://x.johku.com/fi_FI/majoitus/okkola-aapola",
+        "https://x.johku.com/fi_FI/majoitus/ronola-aitta",
+    ]
+    assert johku.dedup_by_slug(urls) == [
+        "https://x.johku.com/en_US/majoitus/okkola-aapola",
+        "https://x.johku.com/fi_FI/majoitus/ronola-aitta",
+    ]
+
+
+def test_dedup_by_image_keeps_first_occurrence():
+    """Один и тот же товар на двух локалях иногда получает РАЗНЫЙ slug (перевод), но
+    хозяин загружает одну и ту же фотографию для обеих версий — image остаётся
+    стабильным идентификатором, когда slug совпасть уже не помог (issue #6, Kalliola/
+    Pistohiekka/Nestorinranta в visitpuumala)."""
+    a = Listing(id="s:okkola-https-www-okkolanlomamokit-com-en", source="s", merchant="m",
+                title="Kalliola - hillside lake views", type="cottage", url="u",
+                image="https://cdn.johku.com/okkola/largefiles/533.jpg")
+    b = Listing(id="s:okkola-kalliola", source="s", merchant="m",
+                title="Kalliola - mahtavat näkymät", type="cottage", url="u",
+                image="https://cdn.johku.com/okkola/largefiles/533.jpg")
+    c = Listing(id="s:okkola-paulala", source="s", merchant="m", title="Paulala",
+                type="cottage", url="u", image="https://cdn.johku.com/okkola/largefiles/92.jpg")
+    assert johku.dedup_by_image([a, b, c]) == [a, c]
 
 
 def test_tervarumpu_product_parsed_with_cabin_type_and_no_street():
