@@ -67,10 +67,12 @@ def main() -> None:
             print(f"== {key}: {cfg['section_url']}")
             items = johku.crawl(key, cfg["section_url"], args.limit)
             names = {k: v["name"] for k, v in (cfg.get("merchants") or {}).items()}
+            merchant_name = cfg.get("merchant_name")
             for it in items:
-                it.merchant = names.get(it.id.split(":", 1)[1].split("-")[0], it.merchant)
+                prefix = it.id.split(":", 1)[1].split("-")[0]
+                it.merchant = names.get(prefix, merchant_name or it.merchant)
                 it.updated_at = date.today().isoformat()
-                place(it, geo, cfg.get("merchants") or {}, cfg.get("area"))
+                place(it, geo, cfg.get("merchants") or {}, cfg.get("area"), cfg.get("overrides"))
             fresh += items
     finally:
         geo.save()

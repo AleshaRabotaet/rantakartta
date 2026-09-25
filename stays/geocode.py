@@ -50,13 +50,19 @@ class Geocoder:
         self.cache_path.write_text(json.dumps(self.cache, ensure_ascii=False, indent=1))
 
 
-def place(item: Listing, geo: Geocoder, merchants: dict, area: list[float] | None) -> None:
+def place(item: Listing, geo: Geocoder, merchants: dict, area: list[float] | None,
+          overrides: dict | None = None) -> None:
+    slug = item.id.split(":", 1)[1]
+    override = (overrides or {}).get(slug)
+    if override:
+        item.lat, item.lon, item.precision = override["lat"], override["lon"], "exact"
+        return
     if has_street(item.address):
         pt = geo.lookup(f"{item.address}, Finland")
         if pt:
             item.lat, item.lon, item.precision = pt[0], pt[1], "exact"
             return
-    anchor = merchants.get(item.id.split(":", 1)[1].split("-")[0])
+    anchor = merchants.get(slug.split("-")[0])
     if anchor:
         item.lat, item.lon, item.precision = anchor["lat"], anchor["lon"], "merchant"
     elif area:
