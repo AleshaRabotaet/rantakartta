@@ -33,14 +33,20 @@ class Geocoder:
             hit = self.cache[address]
             return tuple(hit) if hit else None
         time.sleep(1.1)
-        r = requests.get(
-            NOMINATIM,
-            params={"q": address, "countrycodes": "fi", "format": "json", "limit": 1},
-            headers={"User-Agent": USER_AGENT},
-            timeout=30,
-        )
-        r.raise_for_status()
-        res = r.json()
+        try:
+            r = requests.get(
+                NOMINATIM,
+                params={"q": address, "countrycodes": "fi", "format": "json", "limit": 1},
+                headers={"User-Agent": USER_AGENT},
+                timeout=30,
+            )
+            r.raise_for_status()
+            res = r.json()
+        except requests.RequestException as e:
+            # Сеть/Nominatim недоступны — не роняем всю сборку, просто не даём exact
+            # для этого адреса. Не кэшируем: это не значит "адрес не найден".
+            print(f"  ! geocode {address}: {e}")
+            return None
         point = [float(res[0]["lat"]), float(res[0]["lon"])] if res else None
         self.cache[address] = point
         return tuple(point) if point else None
