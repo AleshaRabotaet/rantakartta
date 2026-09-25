@@ -85,5 +85,5 @@ def open_map_page(browser, port, path="index.html"):
     page.route(SKIP_HOSTS, lambda r: r.abort())
 
     page.goto(f"http://127.0.0.1:{port}/{path}", wait_until="load", timeout=30000)
-    page.wait_for_selector(".item", timeout=15000)
+    page.wait_for_selector(".list li", timeout=15000)  # .item — есть результаты, .empty — фильтры их обнулили
     return context, page
