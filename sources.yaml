@@ -35,6 +35,13 @@ jokiniemenmatkailu:
     - https://jokiniemenmatkailu.fi/fi_FI/lomatalo-haavin-huoneet  # комнаты Lomatalo Haavi — только на fi_FI, нет en_US-раздела вовсе
   area: [63.3659410, 27.3907106]
 
+huoneistohotellimarja:
+  name: Huoneistohotelli Marja
+  section_paths:
+    - https://huoneistohotellimarja.fi/en_US/varaa-tasta
+    - https://huoneistohotellimarja.fi/en_US/varaa-tasta-hostellin-puolelta
+  area: [61.6877823, 27.2731918]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:

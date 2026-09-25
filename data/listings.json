@@ -200,6 +200,324 @@
   "updated_at": "2026-09-25"
  },
  {
+  "id": "huoneistohotellimarja:1-twin-room-with-extra",
+  "source": "huoneistohotellimarja",
+  "merchant": "1",
+  "title": "1 Twin room with extra bed",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/1-twin-room-with-extra",
+  "price_from": 119.9,
+  "currency": "EUR",
+  "beds": 3,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/548.jpg",
+  "tags": [
+   "pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:double-room-6",
+  "source": "huoneistohotellimarja",
+  "merchant": "double",
+  "title": "Double Room",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/double-room-6",
+  "price_from": null,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/622.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:double-room-8",
+  "source": "huoneistohotellimarja",
+  "merchant": "double",
+  "title": "Double Room",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/double-room-8",
+  "price_from": null,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkati 8, 50100 Mikkeli",
+  "lat": 61.6877823,
+  "lon": 27.2731918,
+  "precision": "area",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/628.jpg",
+  "tags": [
+   "pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:family-room",
+  "source": "huoneistohotellimarja",
+  "merchant": "family",
+  "title": "Family Room",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/family-room",
+  "price_from": 159.8,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/555.jpg",
+  "tags": [],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:family-suite",
+  "source": "huoneistohotellimarja",
+  "merchant": "family",
+  "title": "Family Suite",
+  "type": "cottage",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/family-suite",
+  "price_from": 189.8,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/635.jpg",
+  "tags": [
+   "pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:huone-105",
+  "source": "huoneistohotellimarja",
+  "merchant": "huone",
+  "title": "Room 105 for three guests",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta-hostellin-puolelta/huone-105",
+  "price_from": 69.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/789.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:romance-suite",
+  "source": "huoneistohotellimarja",
+  "merchant": "romance",
+  "title": "Romance Suite",
+  "type": "cottage",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/romance-suite",
+  "price_from": null,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/127.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:room-104",
+  "source": "huoneistohotellimarja",
+  "merchant": "room",
+  "title": "Family 4 Bed Hostel Room with Shared Bathroom",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta-hostellin-puolelta/room-104",
+  "price_from": 89.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/791.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:room-103",
+  "source": "huoneistohotellimarja",
+  "merchant": "room",
+  "title": "Private 4 Bed Hostel Room with Shared Bathroom",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta-hostellin-puolelta/room-103",
+  "price_from": 89.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/506.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:room-106",
+  "source": "huoneistohotellimarja",
+  "merchant": "room",
+  "title": "Private Twin Hostel Room with extra bed Shared Bathroom",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta-hostellin-puolelta/room-106",
+  "price_from": 69.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/856.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:single-room",
+  "source": "huoneistohotellimarja",
+  "merchant": "single",
+  "title": "Single Room",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/single-room",
+  "price_from": null,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/613.jpg",
+  "tags": [
+   "pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:single-room-102",
+  "source": "huoneistohotellimarja",
+  "merchant": "single",
+  "title": "Small Single Hostel Room with Shared Bathroom",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta-hostellin-puolelta/single-room-102",
+  "price_from": 62.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/565.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:triple-room-101",
+  "source": "huoneistohotellimarja",
+  "merchant": "triple",
+  "title": "Private Hostel Room with Shared Bathroom",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta-hostellin-puolelta/triple-room-101",
+  "price_from": 69.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/783.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:twin-room-2",
+  "source": "huoneistohotellimarja",
+  "merchant": "twin",
+  "title": "Twin Room",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/twin-room-2",
+  "price_from": 119.8,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/592.jpg",
+  "tags": [
+   "pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:twin-room-3",
+  "source": "huoneistohotellimarja",
+  "merchant": "twin",
+  "title": "Twin Room",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/twin-room-3",
+  "price_from": 119.9,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/673.jpg",
+  "tags": [
+   "pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "huoneistohotellimarja:twin-room-4",
+  "source": "huoneistohotellimarja",
+  "merchant": "twin",
+  "title": "Twin Room",
+  "type": "room",
+  "url": "https://huoneistohotellimarja.fi/en_US/varaa-tasta/twin-room-4",
+  "price_from": null,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jääkärinkatu 8, 50100 Mikkeli",
+  "lat": 61.6817651,
+  "lon": 27.260886,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/huoneistohotellimarja/largefiles/563.jpg",
+  "tags": [
+   "pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
   "id": "jokiniemenmatkailu:ankkuri-cottage-6-guests-lapinlahti",
   "source": "jokiniemenmatkailu",
   "merchant": "Jokiniemen Matkailu",
