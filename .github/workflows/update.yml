@@ -29,7 +29,7 @@ jobs:
       - run: python -m pytest -q
 
   update:
-    if: github.event_name != 'push' && github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
           git config user.name "rantakartta-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data web/data.js
-          git diff --cached --quiet || git commit -m "data: weekly update"
+          git diff --cached --quiet || git commit -m "data: update"
           git push
 
   deploy:
