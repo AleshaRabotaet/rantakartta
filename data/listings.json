@@ -816,6 +816,67 @@
   "updated_at": "2026-09-25"
  },
  {
+  "id": "kolinruno:kratti",
+  "source": "kolinruno",
+  "merchant": "Kolin Runo",
+  "title": "Kratti 1 - 2 persons",
+  "type": "cottage",
+  "url": "https://kolinruno.johku.com/en_US/majoitus/kratti",
+  "price_from": 30.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jerontie 5, 83960 Koli",
+  "lat": 63.0932393,
+  "lon": 29.7842725,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/kolinruno/largefiles/154.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "kolinruno:mielikki",
+  "source": "kolinruno",
+  "merchant": "Kolin Runo",
+  "title": "Mielikki 1 - 2 persons + extra beds for 2",
+  "type": "villa",
+  "url": "https://kolinruno.johku.com/en_US/majoitus/mielikki",
+  "price_from": 30.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jerontie 5, 83960 Koli",
+  "lat": 63.0932393,
+  "lon": 29.7842725,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/kolinruno/largefiles/13.jpg",
+  "tags": [
+   "no_pets",
+   "sauna"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "kolinruno:sinipiika",
+  "source": "kolinruno",
+  "merchant": "Kolin Runo",
+  "title": "Sinipiika 1 person",
+  "type": "cottage",
+  "url": "https://kolinruno.johku.com/en_US/majoitus/sinipiika",
+  "price_from": 74.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Jerontie 5, 83960 Koli",
+  "lat": 63.0932393,
+  "lon": 29.7842725,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/kolinruno/largefiles/29.jpg",
+  "tags": [
+   "no_pets"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
   "id": "smashop:karhunpesa",
   "source": "smashop",
   "merchant": "SMA Group",

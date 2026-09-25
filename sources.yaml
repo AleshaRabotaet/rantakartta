@@ -49,6 +49,12 @@ wildmaker:
     - https://wildmaker.johku.com/fi_FI/accommodation  # aihki-hirsimokki — только на fi_FI, не переведён
   area: [67.9593397, 23.6774037]
 
+kolinruno:
+  name: Kolin Runo
+  section_paths:
+    - https://kolinruno.johku.com/en_US/majoitus
+  area: [63.1179872, 29.7840744]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
