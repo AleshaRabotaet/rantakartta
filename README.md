@@ -4,6 +4,7 @@
 
 ```bash
 pip install -r requirements.txt
+playwright install chromium                              # один раз, для playwright-теста карты
 python -m pytest -q
 python -m stays.build --source visitpuumala --limit 5   # пробный прогон
 python -m http.server -d web 8000                       # карта на http://localhost:8000
