@@ -55,6 +55,13 @@ kolinruno:
     - https://kolinruno.johku.com/en_US/majoitus
   area: [63.1179872, 29.7840744]
 
+vaalimaacamping:
+  name: Vaalimaa Camping
+  section_paths:
+    - https://vaalimaacamping.johku.com/en_US/accommodation
+    - https://vaalimaacamping.johku.com/fi_FI/majoitus  # тот же набор, другие slug — дедуп по фото
+  area: [60.5096701, 27.5877293]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
