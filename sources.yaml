@@ -13,6 +13,38 @@ visitpuumala:
     pistohiekka:  {name: Pistohiekka Resort, lat: 61.5570834, lon: 28.0099704}
     mannilanniemi: {name: Mannilanniemi, lat: 61.66795, lon: 28.2560979}
     guidetiina:   {name: Taiga-tila (GuideTiina), lat: 61.5365531, lon: 27.8945858}
+  # Координаты для объектов без адреса с улицей (17 домиков Okkolan Lomamökit, часть Mannilanniemi,
+  # Pistohiekka, ukonhonka-jarvela) — поиск POI по названию на OSM/Nominatim ничего не дал (частные
+  # домики там не картографированы), Overpass для сверки в этом окружении недоступен (сеть блокирует
+  # overpass-api.de). Источник — structured data (schema.org latitude/longitude) на самой странице
+  # продукта Johku, даёт сам хозяин; сверено на visitpuumala:ukonhonka-latukka (адрес с улицей, есть
+  # и geocode, и JSON-LD) — совпадение в пределах ~5 м, см. docs/sources.md. Три домика Mannilanniemi
+  # (Myyrä/Mäyrä/Metso) отдают одну и ту же точку на троих — это не собственная точка каждого домика,
+  # override для них не добавлен, остаются на merchant-точке mannilanniemi.
+  overrides:
+    okkola-aapola:                        {lat: 61.4555143, lon: 28.1303297}  # Aapola
+    okkola-https-www-okkolanlomamokit-com-mokki: {lat: 61.4587091, lon: 28.1271765}  # Hessula
+    okkola-https-www-okkolanlomamokit-com-en:    {lat: 61.4511659, lon: 28.1262022}  # Kalliola
+    okkola-kotkala:                       {lat: 61.4514995, lon: 28.1231635}  # Kotkala
+    okkola-https-www-okkolanlomamokit-com-6:     {lat: 61.4504228, lon: 28.1260389}  # Lahtela
+    okkola-https-www-okkolanlomamokit-com:       {lat: 61.4549583, lon: 28.1316344}  # Luotola
+    okkola-https-www-okkolanlomamokit-com-2:     {lat: 61.4287818, lon: 28.1274160}  # Mäntylä
+    okkola-https-www-okkolanlomamokit-com-3:     {lat: 61.4549900, lon: 28.1306552}  # Niemelä
+    okkola-paulala:                       {lat: 61.4498976, lon: 28.1247025}  # Paulala
+    okkola-rantala:                       {lat: 61.4276835, lon: 28.1241926}  # Rantala
+    okkola-riihela:                       {lat: 61.4526548, lon: 28.1263927}  # Riihelä
+    okkola-salmela:                       {lat: 61.4281606, lon: 28.1299661}  # Salmela
+    okkola-https-www-okkolanlomamokit-com-8:     {lat: 61.4572219, lon: 28.1203638}  # Sivula
+    okkola-https-www-okkolanlomamokit-com-4:     {lat: 61.4531586, lon: 28.1232879}  # Syrjälä
+    okkola-taijala:                       {lat: 61.4572105, lon: 28.1254137}  # Taijala
+    okkola-https-www-okkolanlomamokit-com-7:     {lat: 61.4588476, lon: 28.1194134}  # Tiirala
+    okkola-https-www-okkolanlomamokit-com-5:     {lat: 61.4558869, lon: 28.1231249}  # Tupula
+    mannilanniemi-https-www-mannilanniemi-com-4: {lat: 61.6663039, lon: 28.2562835}  # Kurki
+    mannilanniemi-https-www-mannilanniemi-com-3: {lat: 61.6664836, lon: 28.2560444}  # Norppa
+    mannilanniemi-maisemamokki-koskelo:   {lat: 61.6660971, lon: 28.2572744}  # Koskelo
+    mannilanniemi-villa-mannilanniemi:    {lat: 61.6658743, lon: 28.2578403}  # Villa Mannilanniemi
+    pistohiekka-cottage-pistohiekka-resort: {lat: 61.5570120, lon: 28.0100298}
+    ukonhonka-jarvela:                    {lat: 61.4970968, lon: 27.8945839}
 
 tervarumpu:
   name: Tervarumpu (Repovesi)

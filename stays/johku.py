@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 from .models import Listing
 
-USER_AGENT = "SuomiStaysBot/0.1 (pet project; contact: CHANGE_ME@example.com)"
+USER_AGENT = "SuomiStaysBot/0.1 (pet project; contact: bet4lulz@pm.me)"
 REQUEST_DELAY_S = 2.0  # вежливая пауза между запросами
 
 PRICE_RE = re.compile(r"€\s*([\d\s]+(?:[.,]\d{1,2})?)")
