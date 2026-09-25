@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rantakartta: жильё у финских озёр</title>
+<title>Rantakartta: lakeside stays in Finland</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛶</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,6 +36,7 @@ body { font: 16px/1.45 var(--sans); color: var(--lake); background: var(--water)
 .head { padding: 22px 22px 14px; }
 h1 { font: 800 34px/1 var(--cond); letter-spacing: -0.01em; margin: 0 0 6px; }
 .lede { margin: 0; color: var(--granite); font-size: 15px; max-width: 34ch; }
+.langs { display: flex; gap: 6px; margin-top: 12px; }
 .filters { padding: 4px 22px 16px; display: grid; gap: 14px; border-bottom: 1px solid var(--line); }
 .search { width: 100%; font: inherit; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: inherit; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -124,26 +125,31 @@ h1 { font: 800 34px/1 var(--cond); letter-spacing: -0.01em; margin: 0 0 6px; }
 <body>
 <div class="app">
   <aside class="panel" id="panel">
-    <button class="sheet-toggle" id="sheetToggle" aria-label="Развернуть список"></button>
+    <button class="sheet-toggle" id="sheetToggle" aria-label="Expand list"></button>
     <div class="head">
       <h1>Rantakartta</h1>
-      <p class="lede">Жильё у небольших хозяев на финских озёрах. Бронирование на сайте хозяина.</p>
+      <p class="lede" id="lede">Stays with small hosts on Finnish lakes. Booking is on the host's own site.</p>
+      <div class="langs" id="langs" role="group" aria-label="Language">
+        <button class="chip" data-lang="fi" aria-pressed="false">FI</button>
+        <button class="chip" data-lang="sv" aria-pressed="false">SV</button>
+        <button class="chip" data-lang="en" aria-pressed="false">EN</button>
+      </div>
     </div>
     <div class="filters">
-      <input class="search" id="q" type="search" placeholder="Название или хозяин" aria-label="Поиск">
-      <div class="chips" id="types" role="group" aria-label="Тип жилья"></div>
+      <input class="search" id="q" type="search" placeholder="Name or host" aria-label="Search">
+      <div class="chips" id="types" role="group" aria-label="Accommodation type"></div>
       <div class="row">
-        <label for="price">До</label>
+        <label for="price" id="priceLabel">Up to</label>
         <input id="price" type="range" min="20" max="350" step="10" value="350">
         <output id="priceOut" for="price">€350</output>
       </div>
-      <div class="chips" id="tags" role="group" aria-label="Удобства"></div>
-      <label class="toggle"><input type="checkbox" id="exact"> Только точные адреса</label>
+      <div class="chips" id="tags" role="group" aria-label="Amenities"></div>
+      <label class="toggle"><input type="checkbox" id="exact"> <span id="exactLabel">Exact addresses only</span></label>
     </div>
     <div class="count"><span id="count"></span><span id="updated"></span></div>
     <ul class="list" id="list"></ul>
   </aside>
-  <div id="map" role="region" aria-label="Карта"></div>
+  <div id="map" role="region" aria-label="Map"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -160,19 +166,167 @@ const GOATCOUNTER_CODE = "rantakartta"; // https://rantakartta.goatcounter.com/
   document.head.appendChild(s);
 })();
 
-const TYPES = {
-  villa:    { label: "Вилла",   color: "var(--t-villa)" },
-  cottage:  { label: "Коттедж", color: "var(--t-cottage)" },
-  room:     { label: "Комната / B&B", color: "var(--t-room)" },
-  hut:      { label: "Хижина",  color: "var(--t-hut)" },
-  glamping: { label: "Глэмпинг", color: "var(--t-glamping)" },
-  camping:  { label: "Палатка / кемпер", color: "var(--t-camping)" },
+// ---------- i18n (issue #16): словарь строк, без ru — см. docs/decisions.md ----------
+const SUPPORTED_LANGS = ["fi", "sv", "en"];
+const LANG_KEY = "rantakartta:lang";
+const STRINGS = {
+  en: {
+    pageTitle: "Rantakartta: lakeside stays in Finland",
+    lede: "Stays with small hosts on Finnish lakes. Booking is on the host's own site.",
+    searchPlaceholder: "Name or host",
+    searchAria: "Search",
+    typesAria: "Accommodation type",
+    priceUpTo: "Up to",
+    tagsAria: "Amenities",
+    exactOnly: "Exact addresses only",
+    mapAria: "Map",
+    sheetToggleAria: "Expand list",
+    langAria: "Language",
+    "types.villa": "Villa",
+    "types.cottage": "Cottage",
+    "types.room": "Room / B&B",
+    "types.hut": "Hut",
+    "types.glamping": "Glamping",
+    "types.camping": "Tent / camper",
+    "tags.sauna": "Sauna",
+    "tags.shore_sauna": "Lakeside sauna",
+    "tags.lake": "By the water",
+    "tags.pets": "Pets allowed",
+    "precision.merchant": "Host's point: the actual place is somewhere nearby.",
+    "precision.area": "Approximate location: only the area is shown.",
+    from: "from",
+    perNight: "per night",
+    bedsCount: ", {n} beds",
+    openAtHost: "Open at host's site",
+    reportSummary: "Report an issue?",
+    reportPlaceholder: "What's wrong?",
+    reportSubmit: "Send",
+    reportSending: "Sending…",
+    reportSuccess: "Thanks, the map's maintainer has been notified.",
+    reportError: "Couldn't send. Please try again later.",
+    countOfTotal: "{shown} of {total}",
+    emptyMessage: "Nothing matches the filters.",
+    resetFilters: "Reset filters",
+    dataAsOf: "data as of {date}",
+  },
+  fi: {
+    pageTitle: "Rantakartta: rantamajoitusta Suomessa",
+    lede: "Majoitusta pienten yrittäjien luona Suomen järvillä. Varaus suoraan isännän sivulla.",
+    searchPlaceholder: "Nimi tai isäntä",
+    searchAria: "Haku",
+    typesAria: "Majoitustyyppi",
+    priceUpTo: "Enintään",
+    tagsAria: "Varustelu",
+    exactOnly: "Vain tarkat osoitteet",
+    mapAria: "Kartta",
+    sheetToggleAria: "Laajenna luettelo",
+    langAria: "Kieli",
+    "types.villa": "Huvila",
+    "types.cottage": "Mökki",
+    "types.room": "Huone / B&B",
+    "types.hut": "Hökkeli",
+    "types.glamping": "Glamping",
+    "types.camping": "Teltta / matkailuauto",
+    "tags.sauna": "Sauna",
+    "tags.shore_sauna": "Rantasauna",
+    "tags.lake": "Veden äärellä",
+    "tags.pets": "Lemmikit sallittu",
+    "precision.merchant": "Isännän piste: kohde on jossain lähistöllä.",
+    "precision.area": "Suuntaa-antava sijainti: näkyvissä vain alue.",
+    from: "alk.",
+    perNight: "/ yö",
+    bedsCount: ", {n} vuodepaikkaa",
+    openAtHost: "Avaa isännän sivulla",
+    reportSummary: "Virhe tiedoissa?",
+    reportPlaceholder: "Mikä on väärin?",
+    reportSubmit: "Lähetä",
+    reportSending: "Lähetetään…",
+    reportSuccess: "Kiitos, kartan ylläpitäjälle on ilmoitettu.",
+    reportError: "Lähetys epäonnistui. Yritä myöhemmin uudelleen.",
+    countOfTotal: "{shown}/{total}",
+    emptyMessage: "Suodattimilla ei löytynyt mitään.",
+    resetFilters: "Nollaa suodattimet",
+    dataAsOf: "tiedot päivitetty {date}",
+  },
+  sv: {
+    pageTitle: "Rantakartta: strandboende i Finland",
+    lede: "Boende hos små värdar vid finska sjöar. Bokning direkt på värdens webbplats.",
+    searchPlaceholder: "Namn eller värd",
+    searchAria: "Sök",
+    typesAria: "Boendetyp",
+    priceUpTo: "Upp till",
+    tagsAria: "Bekvämligheter",
+    exactOnly: "Endast exakta adresser",
+    mapAria: "Karta",
+    sheetToggleAria: "Expandera listan",
+    langAria: "Språk",
+    "types.villa": "Villa",
+    "types.cottage": "Stuga",
+    "types.room": "Rum / B&B",
+    "types.hut": "Hydda",
+    "types.glamping": "Glamping",
+    "types.camping": "Tält / husbil",
+    "tags.sauna": "Bastu",
+    "tags.shore_sauna": "Strandbastu",
+    "tags.lake": "Vid vattnet",
+    "tags.pets": "Husdjur tillåtna",
+    "precision.merchant": "Värdens punkt: platsen finns någonstans i närheten.",
+    "precision.area": "Ungefärlig plats: endast området visas.",
+    from: "fr.",
+    perNight: "/ natt",
+    bedsCount: ", {n} bäddar",
+    openAtHost: "Öppna hos värden",
+    reportSummary: "Fel i uppgifterna?",
+    reportPlaceholder: "Vad är fel?",
+    reportSubmit: "Skicka",
+    reportSending: "Skickar…",
+    reportSuccess: "Tack, kartans ansvarige har meddelats.",
+    reportError: "Det gick inte att skicka. Försök igen senare.",
+    countOfTotal: "{shown} av {total}",
+    emptyMessage: "Inget matchar filtren.",
+    resetFilters: "Återställ filter",
+    dataAsOf: "data från {date}",
+  },
 };
-const TAGS = { sauna: "Сауна", shore_sauna: "Сауна на берегу", lake: "У воды", pets: "Можно с животными" };
-const PRECISION_NOTE = {
-  merchant: "Точка хозяина: сам объект где-то поблизости.",
-  area: "Примерное место: указан только район.",
+
+function t(key, vars) {
+  let s = STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
+  return s;
+}
+
+function getStoredLang() {
+  try { return localStorage.getItem(LANG_KEY); } catch { return null; }
+}
+function setStoredLang(l) {
+  try { localStorage.setItem(LANG_KEY, l); } catch { /* приватный режим браузера */ }
+}
+
+function detectLang() {
+  const hashLang = new URLSearchParams(location.hash.slice(1)).get("lang");
+  if (SUPPORTED_LANGS.includes(hashLang)) return hashLang;
+  const stored = getStoredLang();
+  if (SUPPORTED_LANGS.includes(stored)) return stored;
+  for (const l of navigator.languages || [navigator.language]) {
+    const primary = (l || "").slice(0, 2).toLowerCase();
+    if (SUPPORTED_LANGS.includes(primary)) return primary;
+  }
+  return "en";
+}
+
+let lang = detectLang();
+
+const TYPE_COLORS = {
+  villa: "var(--t-villa)",
+  cottage: "var(--t-cottage)",
+  room: "var(--t-room)",
+  hut: "var(--t-hut)",
+  glamping: "var(--t-glamping)",
+  camping: "var(--t-camping)",
 };
+const TYPE_KEYS = Object.keys(TYPE_COLORS);
+const TAG_KEYS = ["sauna", "shore_sauna", "lake", "pets"];
+const PRECISION_NOTE_KEYS = ["merchant", "area"];
 // Бэкенд на Netlify Functions создаёт GitHub Issue от своего имени — см. docs/decisions.md.
 const REPORT_ENDPOINT = "https://rantakartta.netlify.app/.netlify/functions/report-issue";
 const MAX_REPORT_LENGTH = 500;
@@ -205,7 +359,7 @@ const cluster = L.markerClusterGroup({
     const size = kids.length > 9 ? 58 : 50;
     return L.divIcon({
       className: "cluster", iconSize: [size, size],
-      html: `<div><b>${kids.length}</b><span>от ${eur(min)}</span></div>`,
+      html: `<div><b>${kids.length}</b><span>${t("from")} ${eur(min)}</span></div>`,
     });
   },
 });
@@ -223,36 +377,55 @@ function pillIcon(d, active) {
   const cls = ["pill", d.precision !== "exact" ? "approx" : "", active ? "active" : ""].join(" ");
   return L.divIcon({
     className: "pill-icon", iconSize: [0, 0], popupAnchor: [0, -16],
-    html: `<div class="${cls}" style="background:${TYPES[d.type]?.color || "var(--lake)"}">${eur(d.price_from)}</div>`,
+    html: `<div class="${cls}" style="background:${TYPE_COLORS[d.type] || "var(--lake)"}">${eur(d.price_from)}</div>`,
   });
 }
 
 function popup(d) {
-  const tags = (d.tags || []).filter(t => TAGS[t]).map(t => `<span class="tag">${TAGS[t]}</span>`).join("");
+  const tags = (d.tags || []).filter(tag => TAG_KEYS.includes(tag)).map(tag => `<span class="tag">${t("tags." + tag)}</span>`).join("");
   return `<div class="pop">
     <h3>${esc(d.title)}</h3>
     <div class="m">${esc(d.merchant)}</div>
-    <div><span class="price">от ${eur(d.price_from)}</span> за сутки${d.beds ? `, мест: ${d.beds}` : ""}</div>
-    <div class="m">${TYPES[d.type]?.label || ""}</div>
+    <div><span class="price">${t("from")} ${eur(d.price_from)}</span> ${t("perNight")}${d.beds ? t("bedsCount", { n: d.beds }) : ""}</div>
+    <div class="m">${TYPE_KEYS.includes(d.type) ? t("types." + d.type) : ""}</div>
     ${tags ? `<div class="tags">${tags}</div>` : ""}
-    ${PRECISION_NOTE[d.precision] ? `<p class="note">${PRECISION_NOTE[d.precision]}</p>` : ""}
-    <a class="go" href="${esc(d.url)}" target="_blank" rel="noopener">Открыть у хозяина</a>
+    ${PRECISION_NOTE_KEYS.includes(d.precision) ? `<p class="note">${t("precision." + d.precision)}</p>` : ""}
+    <a class="go" href="${esc(d.url)}" target="_blank" rel="noopener">${t("openAtHost")}</a>
     <details class="report">
-      <summary>Неточность?</summary>
+      <summary>${t("reportSummary")}</summary>
       <form class="report-form" data-id="${esc(d.id)}">
-        <textarea name="message" rows="2" maxlength="${MAX_REPORT_LENGTH}" placeholder="Что не так?" required></textarea>
+        <textarea name="message" rows="2" maxlength="${MAX_REPORT_LENGTH}" placeholder="${esc(t("reportPlaceholder"))}" required></textarea>
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off">
-        <button type="submit">Отправить</button>
+        <button type="submit">${t("reportSubmit")}</button>
         <p class="report-status"></p>
       </form>
     </details>
   </div>`;
 }
 
+function applyLanguage() {
+  document.documentElement.lang = lang;
+  document.title = t("pageTitle");
+  $("lede").textContent = t("lede");
+  $("q").placeholder = t("searchPlaceholder");
+  $("q").setAttribute("aria-label", t("searchAria"));
+  $("types").setAttribute("aria-label", t("typesAria"));
+  $("priceLabel").textContent = t("priceUpTo");
+  $("tags").setAttribute("aria-label", t("tagsAria"));
+  $("exactLabel").textContent = t("exactOnly");
+  $("map").setAttribute("aria-label", t("mapAria"));
+  $("sheetToggle").setAttribute("aria-label", t("sheetToggleAria"));
+  $("langs").setAttribute("aria-label", t("langAria"));
+  document.querySelectorAll("#langs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  if (window.LISTINGS_UPDATED) {
+    $("updated").textContent = t("dataAsOf", { date: window.LISTINGS_UPDATED.split("-").reverse().join(".") });
+  }
+}
+
 // ---------- фильтры ----------
 function matches(d, skip) {
   if (skip !== "types" && state.types.size && !state.types.has(d.type)) return false;
-  if (skip !== "tags") for (const t of state.tags) if (!(d.tags || []).includes(t)) return false;
+  if (skip !== "tags") for (const tg of state.tags) if (!(d.tags || []).includes(tg)) return false;
   if (d.price_from != null && d.price_from > state.maxPrice) return false;
   if (state.exact && d.precision !== "exact") return false;
   if (state.q) {
@@ -262,18 +435,19 @@ function matches(d, skip) {
   return true;
 }
 
-function renderChips(el, defs, set, key, counter) {
+function renderChips(el, keys, set, key, counter, labelFn, colorMap) {
   el.innerHTML = "";
-  for (const [k, def] of Object.entries(defs)) {
+  for (const k of keys) {
     const n = counter(k);
     if (!n && !set.has(k)) continue;
+    const color = colorMap ? colorMap[k] : null;
     const b = document.createElement("button");
     b.className = "chip";
     b.setAttribute("aria-pressed", set.has(k));
-    b.innerHTML = (def.color ? `<span class="dot" style="background:${def.color}"></span>` : "") +
-      `${esc(def.label || def)} <span class="n">${n}</span>`;
+    b.innerHTML = (color ? `<span class="dot" style="background:${color}"></span>` : "") +
+      `${esc(labelFn(k))} <span class="n">${n}</span>`;
     b.onclick = () => {
-      if (set.has(k)) { set.delete(k); } else { set.add(k); track(`/filter/${key}/${k}`, `Фильтр: ${key}=${k}`); }
+      if (set.has(k)) { set.delete(k); } else { set.add(k); track(`/filter/${key}/${k}`, `Filter: ${key}=${k}`); }
       render();
     };
     el.appendChild(b);
@@ -283,26 +457,26 @@ function renderChips(el, defs, set, key, counter) {
 
 function render(fit) {
   const shown = data.filter(d => matches(d));
-  renderChips($("types"), TYPES, state.types, "types", t => data.filter(d => d.type === t && matches(d, "types")).length);
-  renderChips($("tags"), TAGS, state.tags, "tags", t => data.filter(d => (d.tags || []).includes(t) && matches(d, "tags")).length);
+  renderChips($("types"), TYPE_KEYS, state.types, "types", tk => data.filter(d => d.type === tk && matches(d, "types")).length, k => t("types." + k), TYPE_COLORS);
+  renderChips($("tags"), TAG_KEYS, state.tags, "tags", tk => data.filter(d => (d.tags || []).includes(tk) && matches(d, "tags")).length, k => t("tags." + k));
 
   cluster.clearLayers();
   cluster.addLayers(shown.map(d => markers.get(d.id)));
   if (fit && shown.length) map.fitBounds(L.latLngBounds(shown.map(d => [d.lat, d.lon])).pad(0.15));
 
-  $("count").textContent = `${shown.length} из ${data.length}`;
+  $("count").textContent = t("countOfTotal", { shown: shown.length, total: data.length });
   syncHash();
   const list = $("list");
   if (!shown.length) {
-    list.innerHTML = `<li class="empty">Под фильтры ничего не подходит. <button id="reset">Сбросить фильтры</button></li>`;
+    list.innerHTML = `<li class="empty">${t("emptyMessage")} <button id="reset">${t("resetFilters")}</button></li>`;
     $("reset").onclick = reset;
     return;
   }
   list.innerHTML = shown.sort((a, b) => (a.price_from ?? 1e9) - (b.price_from ?? 1e9)).map(d => `
     <li class="item${state.active === d.id ? " active" : ""}" data-id="${esc(d.id)}" tabindex="0">
-      <span class="bar" style="background:${TYPES[d.type]?.color}"></span>
+      <span class="bar" style="background:${TYPE_COLORS[d.type]}"></span>
       <div><div class="t">${esc(d.title)}</div><div class="m">${esc(d.merchant)}</div></div>
-      <div class="p"><small>от</small>${eur(d.price_from)}</div>
+      <div class="p"><small>${t("from")}</small>${eur(d.price_from)}</div>
     </li>`).join("");
 }
 
@@ -330,12 +504,12 @@ function reset() {
   render(true);
 }
 
-// ---------- ссылка (hash отражает фильтры и выбранный объект) ----------
+// ---------- ссылка (hash отражает язык, фильтры и выбранный объект) ----------
 function hashToState() {
   const p = new URLSearchParams(location.hash.slice(1));
   if (p.has("q")) state.q = p.get("q").trim().toLowerCase();
-  for (const t of (p.get("type") || "").split(",")) if (TYPES[t]) state.types.add(t);
-  for (const t of (p.get("tags") || "").split(",")) if (TAGS[t]) state.tags.add(t);
+  for (const tp of (p.get("type") || "").split(",")) if (TYPE_KEYS.includes(tp)) state.types.add(tp);
+  for (const tg of (p.get("tags") || "").split(",")) if (TAG_KEYS.includes(tg)) state.tags.add(tg);
   if (p.has("max")) {
     const n = +p.get("max");
     if (Number.isFinite(n)) state.maxPrice = Math.min(Math.max(n, +$("price").min), +$("price").max);
@@ -347,14 +521,14 @@ function hashToState() {
 
 function syncHash() {
   const p = new URLSearchParams();
+  p.set("lang", lang);
   if (state.q) p.set("q", state.q);
   if (state.types.size) p.set("type", [...state.types].join(","));
   if (state.tags.size) p.set("tags", [...state.tags].join(","));
   if (state.maxPrice !== DEFAULT_MAX_PRICE) p.set("max", state.maxPrice);
   if (state.exact) p.set("exact", "1");
   if (state.active) p.set("id", state.active);
-  const hash = p.toString();
-  history.replaceState(null, "", hash ? `#${hash}` : location.pathname + location.search);
+  history.replaceState(null, "", `#${p.toString()}`);
 }
 
 async function submitReport(form) {
@@ -366,7 +540,7 @@ async function submitReport(form) {
   const btn = form.querySelector("button");
   btn.disabled = true;
   status.className = "report-status";
-  status.textContent = "Отправляем…";
+  status.textContent = t("reportSending");
   try {
     const res = await fetch(REPORT_ENDPOINT, {
       method: "POST",
@@ -374,27 +548,27 @@ async function submitReport(form) {
       body: JSON.stringify({ id: item.id, title: item.title, url: item.url, lat: item.lat, lon: item.lon, message }),
     });
     if (!res.ok) throw new Error();
-    status.textContent = "Спасибо, сообщили хозяину карты.";
+    status.textContent = t("reportSuccess");
     form.reset();
   } catch {
     status.className = "report-status err";
-    status.textContent = "Не получилось отправить. Попробуйте позже.";
+    status.textContent = t("reportError");
     btn.disabled = false;
   }
 }
 
 $("list").addEventListener("click", e => {
   const li = e.target.closest(".item");
-  if (li) { track(`/select/${li.dataset.id}`, "Выбор из списка"); select(li.dataset.id); }
+  if (li) { track(`/select/${li.dataset.id}`, "List select"); select(li.dataset.id); }
 });
 $("list").addEventListener("keydown", e => {
   if (e.key !== "Enter") return;
   const li = e.target.closest(".item");
-  if (li) { track(`/select/${li.dataset.id}`, "Выбор из списка"); select(li.dataset.id); }
+  if (li) { track(`/select/${li.dataset.id}`, "List select"); select(li.dataset.id); }
 });
 document.addEventListener("click", e => {
   if (e.target.closest(".pop .go") && state.active) {
-    track(`/click/open-host/${state.active}`, "Открыть у хозяина");
+    track(`/click/open-host/${state.active}`, "Open at host");
   }
 });
 $("q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
@@ -407,9 +581,19 @@ document.addEventListener("submit", e => {
   submitReport(form);
 });
 $("sheetToggle").addEventListener("click", () => $("panel").classList.toggle("open"));
+document.querySelectorAll("#langs button").forEach(b => {
+  b.addEventListener("click", () => {
+    if (b.dataset.lang === lang) return;
+    lang = b.dataset.lang;
+    setStoredLang(lang);
+    track(`/lang/${lang}`, `Language: ${lang}`);
+    applyLanguage();
+    render();
+  });
+});
 map.on("popupclose", () => { if (state.active) { setActive(markers.get(state.active), false); state.active = null; syncHash(); } });
-if (window.LISTINGS_UPDATED) $("updated").textContent = "данные от " + window.LISTINGS_UPDATED.split("-").reverse().join(".");
 
+applyLanguage();
 const initialId = hashToState();
 $("q").value = state.q;
 $("price").value = state.maxPrice; $("priceOut").textContent = eur(state.maxPrice);

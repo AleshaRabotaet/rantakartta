@@ -1,6 +1,7 @@
 """Общие Playwright-фикстуры для тестов карты (web/index.html)."""
 import functools
 import http.server
+import os
 import re
 import threading
 from pathlib import Path
@@ -60,16 +61,30 @@ def static_server():
 def browser():
     playwright_sync_api = pytest.importorskip("playwright.sync_api")
     with playwright_sync_api.sync_playwright() as p:
+        # Некоторые окружения (напр. облачная песочница) держат предустановленный
+        # Chromium в PLAYWRIGHT_BROWSERS_PATH под конвенцией "chromium" (симлинк на
+        # бинарник), версия которого может не совпадать с той, что ждёт pip-пакет
+        # playwright по умолчанию — обычный p.chromium.launch() тогда ищет несуществующий
+        # chrome-headless-shell. Если такой симлинк есть — используем его явно.
+        launch_kwargs = {}
+        browsers_path = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+        if browsers_path:
+            candidate = Path(browsers_path) / "chromium"
+            if candidate.exists():
+                launch_kwargs["executable_path"] = str(candidate)
         try:
-            b = p.chromium.launch()
+            b = p.chromium.launch(**launch_kwargs)
         except Exception as exc:  # браузер playwright не установлен
             pytest.skip(f"chromium недоступен: {exc}")
         yield b
         b.close()
 
 
-def open_map_page(browser, port, path="index.html"):
-    context = browser.new_context(ignore_https_errors=True)
+def open_map_page(browser, port, path="index.html", locale=None):
+    context_kwargs = {"ignore_https_errors": True}
+    if locale is not None:
+        context_kwargs["locale"] = locale
+    context = browser.new_context(**context_kwargs)
     page = context.new_page()
 
     def serve_vendor(route):
