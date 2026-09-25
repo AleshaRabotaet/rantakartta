@@ -5,8 +5,8 @@
 - **2026-09-25** Аналитика — GoatCounter (без cookies, без баннера согласия): pageview
   автоматически, плюс события клика «Открыть у хозяина» (с id объекта), включения
   фильтра типа/тега и выбора объекта из списка. Код счётчика — константа
-  `GOATCOUNTER_CODE` в начале `<script>`; сейчас заглушка `"rantakartta"`, требует
-  замены на реальный код после регистрации аккаунта на goatcounter.com.
+  `GOATCOUNTER_CODE` в начале `<script>`, значение `"rantakartta"` —
+  зарегистрированный аккаунт на https://rantakartta.goatcounter.com/.
 - **2026-09-25** Сетевой слой парсера (`stays/johku.py`) — `httpx` вместо `requests`. Johku
   (Nuxt) отдаёт HTTP 103 Early Hints перед ответом, stdlib `http.client` его не пропускает и
   получает пустое тело; `httpx` 1xx обрабатывает корректно.
