@@ -1,7 +1,9 @@
 from pathlib import Path
 
+import requests
+
 from stays import johku
-from stays.geocode import place, spread
+from stays.geocode import Geocoder, place, spread
 from stays.models import Listing
 
 FIX = Path(__file__).parent / "fixtures"
@@ -74,6 +76,19 @@ def test_place_override_wins_and_is_exact():
           overrides={"kuutinkamppa": {"lat": 61.1786093, "lon": 26.8470936}})
     assert (item.lat, item.lon) == (61.1786093, 26.8470936)
     assert item.precision == "exact"
+
+
+def test_geocode_lookup_survives_network_error(monkeypatch, tmp_path):
+    """Nominatim недоступен/блокирует (403 и т.п.) -> lookup возвращает None,
+    а не роняет всю сборку исключением. Ошибка не кэшируется."""
+    def boom(*a, **k):
+        raise requests.HTTPError("403 Client Error: Forbidden")
+
+    monkeypatch.setattr("stays.geocode.requests.get", boom)
+    monkeypatch.setattr("stays.geocode.time.sleep", lambda *_: None)
+    geo = Geocoder(cache_path=tmp_path / "cache.json")
+    assert geo.lookup("Lintusalontie 1661, 52200 Puumala, Finland") is None
+    assert geo.cache == {}
 
 
 def test_spread_separates_same_point():
