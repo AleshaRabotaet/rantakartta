@@ -1,5 +1,85 @@
 [
  {
+  "id": "tervarumpu:kuutinkamppa",
+  "source": "tervarumpu",
+  "merchant": "Tervarumpu",
+  "title": "Kuutinkämppä",
+  "type": "hut",
+  "url": "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/kuutinkamppa",
+  "price_from": 98.0,
+  "currency": "EUR",
+  "beds": 6,
+  "address": "Repoveden kansallispuisto / Repovesi National Park, 52920 Voikoski",
+  "lat": 61.1786093,
+  "lon": 26.8470936,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/tervarumpu/largefiles/1210.jpg",
+  "tags": [
+   "lake"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "tervarumpu:pihkapirtti",
+  "source": "tervarumpu",
+  "merchant": "Tervarumpu",
+  "title": "Pihkapirtti",
+  "type": "hut",
+  "url": "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/pihkapirtti",
+  "price_from": 135.0,
+  "currency": "EUR",
+  "beds": 8,
+  "address": "Repoveden kansallispuisto / Repovesi National Park, 52920 Kouvola",
+  "lat": 61.1823817,
+  "lon": 26.8446016,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/tervarumpu/largefiles/1213.jpg",
+  "tags": [],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "tervarumpu:savottakamppa",
+  "source": "tervarumpu",
+  "merchant": "Tervarumpu",
+  "title": "Saarijärvi Forestry Hut",
+  "type": "hut",
+  "url": "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/savottakamppa",
+  "price_from": 99.0,
+  "currency": "EUR",
+  "beds": 8,
+  "address": "Kuismantie 985, 47910 Voikoski",
+  "lat": 61.1977591,
+  "lon": 26.8824743,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/tervarumpu/largefiles/848.jpg",
+  "tags": [
+   "lake"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "tervarumpu:sammaltupa",
+  "source": "tervarumpu",
+  "merchant": "Tervarumpu",
+  "title": "Sammaltupa",
+  "type": "hut",
+  "url": "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/sammaltupa",
+  "price_from": 135.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Repoveden kansallispuisto / Repovesi National Park, 52920 Voikoski",
+  "lat": 61.19,
+  "lon": 26.88,
+  "precision": "area",
+  "image": "https://cdn.johku.com/tervarumpu/largefiles/1248.jpg",
+  "tags": [
+   "lake",
+   "pets",
+   "sauna"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
   "id": "visitpuumala:hanhiniitty-glamping-teltta",
   "source": "visitpuumala",
   "merchant": "Hanhiniitty / Saimaa Canoeing",
