@@ -7,6 +7,8 @@ on:
   push:
     branches: [main]
     paths: ["web/**"]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
@@ -14,8 +16,20 @@ permissions:
   id-token: write
 
 jobs:
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q
+
   update:
-    if: github.event_name != 'push'
+    if: github.event_name != 'push' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +48,7 @@ jobs:
 
   deploy:
     needs: [update]
-    if: always() && (needs.update.result == 'success' || needs.update.result == 'skipped')
+    if: github.event_name != 'pull_request' && always() && (needs.update.result == 'success' || needs.update.result == 'skipped')
     runs-on: ubuntu-latest
     environment: { name: github-pages }
     steps:
