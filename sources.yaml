@@ -70,6 +70,12 @@ nyyssanniemi:
     - https://nyyssis2020.johku.com/en_US/aurorahut
   area: [62.2579819, 24.7083599]
 
+purolomat:
+  name: Purolomat
+  section_paths:
+    - https://purolomat.johku.com/fi_FI/majoitukset  # en_US не существует (404) — только fi_FI
+  area: [61.8582857, 21.5004374]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:

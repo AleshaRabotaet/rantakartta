@@ -934,6 +934,46 @@
   "updated_at": "2026-09-25"
  },
  {
+  "id": "purolomat:jokimokki",
+  "source": "purolomat",
+  "merchant": "Juho Mäkipuro",
+  "title": "Jokimökki",
+  "type": "cottage",
+  "url": "https://purolomat.johku.com/fi_FI/majoitukset/jokimokki",
+  "price_from": 110.0,
+  "currency": "EUR",
+  "beds": 9,
+  "address": "Kuninkaantie 99, 29900 Merikarvia",
+  "lat": 61.8365515,
+  "lon": 21.5307851,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/purolomat/largefiles/6.jpg",
+  "tags": [
+   "sauna"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "purolomat:kuninkaanmaja",
+  "source": "purolomat",
+  "merchant": "Juho Mäkipuro",
+  "title": "Kuninkaanmaja",
+  "type": "cottage",
+  "url": "https://purolomat.johku.com/fi_FI/majoitukset/kuninkaanmaja",
+  "price_from": 90.0,
+  "currency": "EUR",
+  "beds": null,
+  "address": "Kuninkaantie 97, 29900 Merikarvia",
+  "lat": 61.8470628,
+  "lon": 21.5225488,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/purolomat/largefiles/24.jpg",
+  "tags": [
+   "sauna"
+  ],
+  "updated_at": "2026-09-25"
+ },
+ {
   "id": "smashop:karhunpesa",
   "source": "smashop",
   "merchant": "SMA Group",
