@@ -2896,5 +2896,45 @@
   "image": "https://cdn.johku.com/wildkarelia/largefiles/220.jpg",
   "tags": [],
   "updated_at": "2026-09-25"
+ },
+ {
+  "id": "wildmaker:aihki-hirsimokki",
+  "source": "wildmaker",
+  "merchant": "Wildmaker",
+  "title": "Aihki hirsimökki",
+  "type": "cottage",
+  "url": "https://wildmaker.johku.com/fi_FI/accommodation/aihki-hirsimokki",
+  "price_from": 100.0,
+  "currency": "EUR",
+  "beds": 2,
+  "address": "Pallaksentie 110, 99300 Muonio",
+  "lat": 67.9099895,
+  "lon": 23.9198003,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/wildmaker/largefiles/139.jpg",
+  "tags": [],
+  "updated_at": "2026-09-25"
+ },
+ {
+  "id": "wildmaker:log-cabin-with-sauna-and-fireplace",
+  "source": "wildmaker",
+  "merchant": "Wildmaker",
+  "title": "Log cabin with a sauna and a fireplace",
+  "type": "cottage",
+  "url": "https://wildmaker.johku.com/en_US/accommodation/log-cabin-with-sauna-and-fireplace",
+  "price_from": null,
+  "currency": "EUR",
+  "beds": 4,
+  "address": "Peltolantie 71, 99300 Muonio",
+  "lat": 67.8662615,
+  "lon": 24.0794476,
+  "precision": "exact",
+  "image": "https://cdn.johku.com/wildmaker/largefiles/97.jpg",
+  "tags": [
+   "car_needed",
+   "pets",
+   "sauna"
+  ],
+  "updated_at": "2026-09-25"
  }
 ]

@@ -42,6 +42,13 @@ huoneistohotellimarja:
     - https://huoneistohotellimarja.fi/en_US/varaa-tasta-hostellin-puolelta
   area: [61.6877823, 27.2731918]
 
+wildmaker:
+  name: Wildmaker
+  section_paths:
+    - https://wildmaker.johku.com/en_US/accommodation
+    - https://wildmaker.johku.com/fi_FI/accommodation  # aihki-hirsimokki — только на fi_FI, не переведён
+  area: [67.9593397, 23.6774037]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
