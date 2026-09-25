@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 import requests
@@ -49,6 +50,14 @@ def test_has_street():
     assert johku.has_street("Latukantie 118, 52200 Puumala")
     assert not johku.has_street("52200 Puumala")
     assert not johku.has_street(None)
+
+
+def test_user_agent_has_real_contact():
+    """Плейсхолдер CHANGE_ME@example.com отклоняется Nominatim ('Access denied') —
+    geocode.py молча теряет exact-точность для всех адресов с улицей (см. docs/sources.md)."""
+    assert "CHANGE_ME" not in johku.USER_AGENT
+    assert "example.com" not in johku.USER_AGENT
+    assert re.search(r"[\w.+-]+@[\w.-]+\.\w+", johku.USER_AGENT)
 
 
 def test_parse_price_formats():
