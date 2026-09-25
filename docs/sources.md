@@ -3,7 +3,7 @@
 | Источник | Статус | Заметки |
 |---|---|---|
 | visitpuumala.johku.com/en_US/majoitus | обход готов, геокодинг проверен | 57 карточек, 51 жильё; 48/51 precision exact, 3 — merchant (см. ниже) |
-| tervarumpu.fi/en_US/accommodation-in-repovesi-national-park | обход готов, 4/4 жильё | Johku на своём домене (Nuxt); хижины Repovesi без своего хозяина на карте — `merchant_name: Tervarumpu`. У всех 4 нет улицы в адресе, координаты — `overrides` в sources.yaml: 3 сверены с точками OSM `tourism=wilderness_hut`, sammaltupa (в OSM не картографирована) — из structured data на странице продукта Johku (`latitude`/`longitude` в JSON-LD, публикует сам хозяин) |
+| tervarumpu.fi (Repovesi + Verla) | обход готов, 20/20 жильё | Johku на своём домене (Nuxt); 4 хижины Repovesi без своего хозяина — `merchant_name: Tervarumpu`, координаты — `overrides` (3 сверены с OSM `tourism=wilderness_hut`, sammaltupa — из JSON-LD на странице продукта). **+16 объектов бэкфилла (issue #6, 2026-09-25)**: 5-я хижина Repovesi (`harjulanmokit-jakalatupa`) и весь раздел «Majoittuminen Verlassa» (14 домиков) существовали только на fi_FI, не были переведены на en_US — см. ниже |
 | Другие Johku-витрины | TODO найти | искать по `johku.com/en_US` и `cdn.johku.com` |
 | Visit Finland DataHub | TODO | бесплатный API, нужна регистрация публикатора; без цен и доступности |
 | Johku REST API | ждём ответа | доступ только по запросу; маленькая компания (3 чел., оборот ~€0,4 млн) |
@@ -93,3 +93,41 @@ Metso) отдают одну и ту же точку на троих** (`61.6676
 issue #3 в части «найти координаты домиков»: способ оказался не OSM (домики там не картографированы),
 а JSON-LD с самой страницы Johku — тот же источник, что уже использовался для `sammaltupa`, теперь
 проверенный на независимом geocode-сравнении и применённый системно.
+
+## Tervarumpu: бэкфилл fi_FI-only объектов (2026-09-25, issue #6)
+
+При поиске новых Johku-витрин для issue #6 выяснилось: часть разделов сайта существует только
+на fi_FI и никогда не была переведена на en_US, поэтому обход (который до сих пор ходил только
+по `/en_US/accommodation-in-repovesi-national-park`) их не видел:
+
+- **5-я хижина Repovesi** — `harjulanmokit-jakalatupa` (Harjulan Mökit), есть только на
+  `/fi_FI/majoittuminen-repovedella` (тот же раздел, что и остальные 4 хижины на английском —
+  просто эта одна не переведена).
+- **Целый раздел «Majoittuminen Verlassa»** — 14 домиков в усадьбе Verla (объект Всемирного
+  наследия ЮНЕСКО, ~30 мин от Repovesi, отдельная локация), хозяин — Verlan Mökit / Repovalkea Oy.
+  Раздела на en_US для Verla нет вообще, ни одной ссылки.
+
+Для этого в `stays/johku.py` добавлен разбор финских меток (`LABELS_FI`, маркеры мерчанта
+`Kauppias`/`Tiedustelut`) — метки те же самые, что и на en_US, просто на другом языке, страница
+устроена идентично. Обход переведён с парсинга ссылок одной HTML-страницы на
+`googlesitemap.xml` витрины — так все fi_FI-only разделы становятся видны обходу наравне с
+en_US, без ручного угадывания nav-ссылок (`sources.yaml: tervarumpu.section_paths` — теперь
+список из 3 URL: en_US Repovesi + fi_FI Repovesi + fi_FI Verla).
+
+**Геокодинг**: у всех 14 домиков Verla есть честный адрес с улицей (`Verlantie NNN, 47850 Verla`
+и т.п.) — 18/20 итоговых объектов (считая старые 4 Repovesi) получили `exact` с первого/второго
+прогона (Nominatim иногда отдаёт `429` на этой сети — повторный прогон добирает недостающее из
+кэша/повторных попыток, тот же паттерн, что и в issue #3). Добавлен `merchants.verla` — точка
+центра усадьбы Verla (геокодирована по названию) как запасной якорь на случай сбоя geocode для
+конкретного домика, а не area-точка Repovesi (другой нацпарк, соврать точку на карте нечестно).
+Два исключения, оба честно не `exact`:
+- `harjulanmokit-jakalatupa` — адрес `Ukkolammentie 151, 52920 Voikoski` Nominatim не находит
+  (тот же паттерн: частные лесные дороги не всегда картографированы) — остаётся на area-точке
+  Repovesi (Voikoski — часть того же нацпарка, географически честно).
+- `verla-verlan-uittotupa` — адрес `Kartisapolku, 47850 Verla` без номера дома — остаётся на
+  merchant-точке `verla`.
+
+Имя хозяина `Harjulan Mökit` (для 5-й хижины Repovesi) не выделено отдельно в `merchants` —
+без адреса-якоря отдельная запись не нужна, объект и так получает честную area-точку; хозяин
+отображается общим `merchant_name: Tervarumpu`, как и остальные хижины парка (сознательное
+упрощение, не искажение данных).

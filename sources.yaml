@@ -1,10 +1,16 @@
 # Витрины для обхода. Ключ = source в id объектов.
+# section_paths: URL раздела(ов) жилья — один или несколько, обход идёт через googlesitemap.xml
+#   витрины (устойчивее парсинга ссылок с одной страницы). Часть Johku-витрин заводит объекты
+#   только на fi_FI и не переводит на en_US — такие fi_FI-only разделы дописываются отдельным
+#   URL в этом же списке, парсер понимает финские метки наравне с английскими (issue #6).
 # merchants: точки хозяев (ключ = префикс slug до первого "-"), нужны, когда у объекта нет адреса с улицей.
 # area: запасная точка — центр муниципалитета.
 
 visitpuumala:
   name: Visit Puumala
-  section_url: https://visitpuumala.johku.com/en_US/majoitus
+  section_paths:
+    - https://visitpuumala.johku.com/en_US/majoitus
+    - https://visitpuumala.johku.com/fi_FI/majoitus  # Metsäsydän, Rönölä — только на fi_FI (issue #6)
   area: [61.5230, 28.1768]
   merchants:
     okkola:       {name: Okkolan Lomamökit, lat: 61.4535086, lon: 28.1548852}
@@ -13,6 +19,7 @@ visitpuumala:
     pistohiekka:  {name: Pistohiekka Resort, lat: 61.5570834, lon: 28.0099704}
     mannilanniemi: {name: Mannilanniemi, lat: 61.66795, lon: 28.2560979}
     guidetiina:   {name: Taiga-tila (GuideTiina), lat: 61.5365531, lon: 27.8945858}
+    metsasydan:   {name: Metsäsydän, lat: 61.4650328, lon: 28.2070396}  # Junninmäentie (без номера дома) геокодирована как улица
   # Координаты для объектов без адреса с улицей (17 домиков Okkolan Lomamökit, часть Mannilanniemi,
   # Pistohiekka, ukonhonka-jarvela) — поиск POI по названию на OSM/Nominatim ничего не дал (частные
   # домики там не картографированы), Overpass для сверки в этом окружении недоступен (сеть блокирует
@@ -47,11 +54,15 @@ visitpuumala:
     ukonhonka-jarvela:                    {lat: 61.4970968, lon: 27.8945839}
 
 tervarumpu:
-  name: Tervarumpu (Repovesi)
+  name: Tervarumpu (Repovesi + Verla)
   merchant_name: Tervarumpu
-  section_url: https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park
+  section_paths:
+    - https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park
+    - https://tervarumpu.fi/fi_FI/majoittuminen-repovedella  # 5-я хижина (harjulanmokit-jakalatupa), только fi_FI
+    - https://tervarumpu.fi/fi_FI/majoittuminen-verlassa     # Верла, 14 домиков, только fi_FI (issue #6)
   area: [61.19, 26.88]
-  merchants: {}
+  merchants:
+    verla: {name: Verlan Mökit / Repovalkea Oy, lat: 61.0624905, lon: 26.6374676}  # запасная точка на случай сбоя geocode — у всех 14 домиков честный адрес с улицей
   # Координаты хижин без адреса с улицей — POI tourism=wilderness_hut в OSM/Nominatim по названию;
   # проверены сверкой с Overpass API (bbox вокруг Repovesi), точки в OSM найдены для всех, кроме sammaltupa.
   # sammaltupa в OSM/Nominatim не картографирована (проверено по названию и по всем hut/cabin/shelter POI
