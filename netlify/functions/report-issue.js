@@ -2,16 +2,28 @@
 // сервисного токена — так пользователю не нужно логиниться в GitHub.
 // Требует секрет GITHUB_TOKEN (fine-grained PAT, только Issues: Write на этот репозиторий).
 const REPO = "AleshaRabotaet/rantakartta";
-const ALLOWED_ORIGIN = "https://alesharabotaet.github.io";
+// Прод-сайт на GitHub Pages + сам Netlify-сайт (прод и deploy-preview/branch-деплои
+// вида deploy-preview-30--rantakartta.netlify.app) — превью нужны, чтобы форму можно
+// было проверить до мержа PR.
+const ALLOWED_ORIGINS = [
+  /^https:\/\/alesharabotaet\.github\.io$/,
+  /^https:\/\/([a-z0-9-]+--)?rantakartta\.netlify\.app$/,
+];
 const MAX_MESSAGE_LENGTH = 1000;
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+function corsHeaders(origin) {
+  const allowed = origin && ALLOWED_ORIGINS.some(re => re.test(origin));
+  return {
+    "Access-Control-Allow-Origin": allowed ? origin : "null",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
+  };
+}
 
 exports.handler = async (event) => {
+  const CORS_HEADERS = corsHeaders(event.headers?.origin || event.headers?.Origin);
+
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: CORS_HEADERS, body: "" };
   }
