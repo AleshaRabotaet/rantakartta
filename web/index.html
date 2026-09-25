@@ -262,14 +262,19 @@ function render(fit) {
     </li>`).join("");
 }
 
+function setActive(m, on) {
+  m.options.icon = pillIcon(m.options.item, on);   // для следующего появления маркера
+  const el = m.getElement();                        // если маркер сейчас на карте
+  if (el) el.querySelector(".pill")?.classList.toggle("active", on);
+}
+
 function select(id, open = true) {
   if (state.active && markers.has(state.active)) {
-    const prev = markers.get(state.active);
-    prev.setIcon(pillIcon(prev.options.item, false));
+    setActive(markers.get(state.active), false);
   }
   state.active = id;
   const m = markers.get(id);
-  m.setIcon(pillIcon(m.options.item, true));
+  setActive(m, true);
   document.querySelectorAll(".item").forEach(li => li.classList.toggle("active", li.dataset.id === id));
   if (open) cluster.zoomToShowLayer(m, () => m.openPopup());
 }
@@ -286,7 +291,7 @@ $("q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerC
 $("price").addEventListener("input", e => { state.maxPrice = +e.target.value; $("priceOut").textContent = eur(state.maxPrice); render(); });
 $("exact").addEventListener("change", e => { state.exact = e.target.checked; render(); });
 $("sheetToggle").addEventListener("click", () => $("panel").classList.toggle("open"));
-map.on("popupclose", () => { if (state.active) { const m = markers.get(state.active); m.setIcon(pillIcon(m.options.item, false)); state.active = null; } });
+map.on("popupclose", () => { if (state.active) { setActive(markers.get(state.active), false); state.active = null; } });
 if (window.LISTINGS_UPDATED) $("updated").textContent = "данные от " + window.LISTINGS_UPDATED.split("-").reverse().join(".");
 
 render(true);
