@@ -3,7 +3,7 @@
 | Источник | Статус | Заметки |
 |---|---|---|
 | visitpuumala.johku.com/en_US/majoitus | seed вручную, парсер готов | 57 карточек, из них 51 жильё |
-| tervarumpu.fi/en_US/accommodation-in-repovesi-national-park | обход готов, 4/4 жильё | Johku на своём домене (Nuxt); хижины Repovesi без своего хозяина на карте — `merchant_name: Tervarumpu`. У 3 из 4 нет улицы в адресе, координаты — `overrides` в sources.yaml по POI из Nominatim (sammaltupa не нашлась, precision `area`) |
+| tervarumpu.fi/en_US/accommodation-in-repovesi-national-park | обход готов, 4/4 жильё | Johku на своём домене (Nuxt); хижины Repovesi без своего хозяина на карте — `merchant_name: Tervarumpu`. У всех 4 нет улицы в адресе, координаты — `overrides` в sources.yaml: 3 по POI из Nominatim, sammaltupa (в Nominatim не нашлась) — вручную по адресу Karhulahdentie, 47910 Repovesi, проверено на openstreetmap.org |
 | Другие Johku-витрины | TODO найти | искать по `johku.com/en_US` и `cdn.johku.com` |
 | Visit Finland DataHub | TODO | бесплатный API, нужна регистрация публикатора; без цен и доступности |
 | Johku REST API | ждём ответа | доступ только по запросу; маленькая компания (3 чел., оборот ~€0,4 млн) |
@@ -21,8 +21,9 @@
   раздела (General/Properties/...).
 - Координаты трёх хижин без адреса с улицей (kuutinkamppa, pihkapirtti, savottakamppa) — из Nominatim,
   POI `tourism=wilderness_hut` с точным совпадением по имени. **sammaltupa в Nominatim не нашлась** ни по одному
-  варианту запроса (название, название + местность) — оставлена без override, точность `area` (центр Repovesi).
-  Если у кого-то есть точные координаты — добавить в `sources.yaml: tervarumpu.overrides.sammaltupa`.
+  варианту запроса (название, название + местность). Координаты добавлены вручную (2026-09-25) по адресу
+  Karhulahdentie, 47910 Repovesi (61°10'51.6"N 26°50'16.2"E), проверены на openstreetmap.org —
+  `sources.yaml: tervarumpu.overrides.sammaltupa`, precision `exact`.
 - Отдельная проблема, не в рамках этой задачи: `USER_AGENT` в `stays/johku.py` содержит плейсхолдер
   `CHANGE_ME@example.com`, и Nominatim блокирует такие запросы («Access denied»). Сейчас это не мешает —
   ни один объект Tervarumpu не долетает до `geo.lookup()` — но заблокирует геокодинг адресов с улицей

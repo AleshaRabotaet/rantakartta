@@ -68,9 +68,9 @@
   "currency": "EUR",
   "beds": null,
   "address": "Repoveden kansallispuisto / Repovesi National Park, 52920 Voikoski",
-  "lat": 61.19,
-  "lon": 26.88,
-  "precision": "area",
+  "lat": 61.181,
+  "lon": 26.837833,
+  "precision": "exact",
   "image": "https://cdn.johku.com/tervarumpu/largefiles/1248.jpg",
   "tags": [
    "lake",
