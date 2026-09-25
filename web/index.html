@@ -249,7 +249,10 @@ function renderChips(el, defs, set, key, counter) {
     b.setAttribute("aria-pressed", set.has(k));
     b.innerHTML = (def.color ? `<span class="dot" style="background:${def.color}"></span>` : "") +
       `${esc(def.label || def)} <span class="n">${n}</span>`;
-    b.onclick = () => { set.has(k) ? set.delete(k) : set.add(k); render(); };
+    b.onclick = () => {
+      if (set.has(k)) { set.delete(k); } else { set.add(k); track(`/filter/${key}/${k}`, `Фильтр: ${key}=${k}`); }
+      render();
+    };
     el.appendChild(b);
   }
   if (!el.children.length) el.style.display = "none"; else el.style.display = "";
