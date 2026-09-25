@@ -64,8 +64,8 @@ def main() -> None:
     try:
         for key in keys:
             cfg = sources[key]
-            print(f"== {key}: {cfg['section_url']}")
-            items = johku.crawl(key, cfg["section_url"], args.limit)
+            print(f"== {key}: {cfg['section_paths']}")
+            items = johku.crawl(key, cfg["section_paths"], args.limit)
             names = {k: v["name"] for k, v in (cfg.get("merchants") or {}).items()}
             merchant_name = cfg.get("merchant_name")
             for it in items:

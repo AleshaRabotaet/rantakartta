@@ -65,6 +65,53 @@ def test_parse_price_formats():
     assert johku.parse_price("26.00") == 26.0
 
 
+def test_finnish_product_page_parsed_by_labels():
+    """Часть Johku-витрин заводит объекты только на fi_FI и не переводит их (см.
+    docs/decisions.md) — парсер должен понимать финские метки наравне с en_US."""
+    html = (FIX / "product_verla_janis_fi.html").read_text()
+    item = johku.parse_product(
+        html,
+        "https://tervarumpu.fi/fi_FI/majoittuminen-verlassa/verla-hirsniemen-janis",
+        "tervarumpu", "verla-hirsniemen-janis", 79.0,
+    )
+    assert item.title == "Hirsniemen Jänis"
+    assert item.merchant == "Verlan Mökit / Repovalkea Oy"
+    assert item.type == "hut"
+    assert item.beds == 2
+    assert item.address == "Verlantie 287, 47850 Verla"
+    assert johku.has_street(item.address)
+    assert item.tags == ["car_needed", "lake", "pets", "sauna", "shore_sauna"]
+
+
+def test_discover_product_urls_filters_by_prefix_and_depth():
+    """Обход через googlesitemap.xml: берём только товарные страницы под известными
+    префиксами (раздел жилья), не сам раздел и не посторонние страницы сайта."""
+    xml = (FIX / "sitemap_sample.xml").read_text()
+    urls = johku.discover_product_urls(
+        xml,
+        "https://tervarumpu.fi",
+        ["/en_US/accommodation-in-repovesi-national-park", "/fi_FI/majoittuminen-verlassa"],
+    )
+    assert urls == [
+        "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/kuutinkamppa",
+        "https://tervarumpu.fi/en_US/accommodation-in-repovesi-national-park/sammaltupa",
+        "https://tervarumpu.fi/fi_FI/majoittuminen-verlassa/verla-hirsniemen-janis",
+        "https://tervarumpu.fi/fi_FI/majoittuminen-verlassa/verla-hirsniemen-mayra",
+    ]
+
+
+def test_dedup_by_slug_keeps_first_occurrence():
+    urls = [
+        "https://x.johku.com/en_US/majoitus/okkola-aapola",
+        "https://x.johku.com/fi_FI/majoitus/okkola-aapola",
+        "https://x.johku.com/fi_FI/majoitus/ronola-aitta",
+    ]
+    assert johku.dedup_by_slug(urls) == [
+        "https://x.johku.com/en_US/majoitus/okkola-aapola",
+        "https://x.johku.com/fi_FI/majoitus/ronola-aitta",
+    ]
+
+
 def test_tervarumpu_product_parsed_with_cabin_type_and_no_street():
     html = (FIX / "product_tervarumpu_kuutinkamppa.html").read_text()
     item = johku.parse_product(
