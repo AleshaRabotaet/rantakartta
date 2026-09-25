@@ -88,6 +88,7 @@ h1 { font: 800 34px/1 var(--cond); letter-spacing: -0.01em; margin: 0 0 6px; }
 .pop .note { font-size: 12px; color: var(--berry); margin: 6px 0 0; }
 .pop .go { display: block; text-align: center; margin-top: 12px; padding: 9px; border-radius: 8px;
   background: var(--lake); color: #fff !important; text-decoration: none; font-weight: 700; }
+.pop .report { display: block; text-align: center; margin-top: 8px; font-size: 12px; color: var(--granite); }
 .pop .price { font: 800 20px var(--cond); }
 
 /* ---------- мобильный ---------- */
@@ -152,6 +153,21 @@ const PRECISION_NOTE = {
   merchant: "Точка хозяина: сам объект где-то поблизости.",
   area: "Примерное место: указан только район.",
 };
+const REPO_URL = "https://github.com/AleshaRabotaet/rantakartta";
+
+function reportUrl(d) {
+  const title = `Неточность: ${d.title} (${d.id})`;
+  const body = [
+    `Объект: ${d.id}`,
+    `Название: ${d.title}`,
+    `Ссылка у хозяина: ${d.url}`,
+    `Координаты: ${d.lat}, ${d.lon}`,
+    "",
+    "Что не так:",
+  ].join("\n");
+  const params = new URLSearchParams({ title, body, labels: "data" });
+  return `${REPO_URL}/issues/new?${params}`;
+}
 
 const data = (window.LISTINGS || []).filter(d => d.lat != null);
 const state = { q: "", types: new Set(), tags: new Set(), maxPrice: 350, exact: false, active: null };
@@ -206,6 +222,7 @@ function popup(d) {
     ${tags ? `<div class="tags">${tags}</div>` : ""}
     ${PRECISION_NOTE[d.precision] ? `<p class="note">${PRECISION_NOTE[d.precision]}</p>` : ""}
     <a class="go" href="${esc(d.url)}" target="_blank" rel="noopener">Открыть у хозяина</a>
+    <a class="report" href="${esc(reportUrl(d))}" target="_blank" rel="noopener">Неточность?</a>
   </div>`;
 }
 
