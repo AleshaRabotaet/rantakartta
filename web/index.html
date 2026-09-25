@@ -88,7 +88,17 @@ h1 { font: 800 34px/1 var(--cond); letter-spacing: -0.01em; margin: 0 0 6px; }
 .pop .note { font-size: 12px; color: var(--berry); margin: 6px 0 0; }
 .pop .go { display: block; text-align: center; margin-top: 12px; padding: 9px; border-radius: 8px;
   background: var(--lake); color: #fff !important; text-decoration: none; font-weight: 700; }
-.pop .report { display: block; text-align: center; margin-top: 8px; font-size: 12px; color: var(--granite); }
+.pop .report { margin-top: 10px; font-size: 12px; }
+.pop .report summary { color: var(--granite); cursor: pointer; text-align: center; }
+.pop .report[open] summary { margin-bottom: 6px; }
+.pop .report-form { display: grid; gap: 6px; }
+.pop .report-form textarea { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; resize: vertical; color: inherit; }
+.pop .report-form .hp { position: absolute; left: -9999px; }
+.pop .report-form button { font: 600 13px var(--sans); padding: 6px; border: 1px solid var(--line); border-radius: 6px;
+  background: #fff; color: var(--lake); cursor: pointer; }
+.pop .report-form button:disabled { opacity: .6; cursor: default; }
+.pop .report-status { margin: 0; font-size: 12px; color: var(--granite); min-height: 14px; }
+.pop .report-status.err { color: var(--berry); }
 .pop .price { font: 800 20px var(--cond); }
 
 /* ---------- мобильный ---------- */
@@ -163,21 +173,9 @@ const PRECISION_NOTE = {
   merchant: "Точка хозяина: сам объект где-то поблизости.",
   area: "Примерное место: указан только район.",
 };
-const REPO_URL = "https://github.com/AleshaRabotaet/rantakartta";
-
-function reportUrl(d) {
-  const title = `Неточность: ${d.title} (${d.id})`;
-  const body = [
-    `Объект: ${d.id}`,
-    `Название: ${d.title}`,
-    `Ссылка у хозяина: ${d.url}`,
-    `Координаты: ${d.lat}, ${d.lon}`,
-    "",
-    "Что не так:",
-  ].join("\n");
-  const params = new URLSearchParams({ title, body, labels: "data" });
-  return `${REPO_URL}/issues/new?${params}`;
-}
+// Бэкенд на Netlify Functions создаёт GitHub Issue от своего имени — см. docs/decisions.md.
+const REPORT_ENDPOINT = "https://rantakartta.netlify.app/.netlify/functions/report-issue";
+const MAX_REPORT_LENGTH = 500;
 
 const data = (window.LISTINGS || []).filter(d => d.lat != null);
 const state = { q: "", types: new Set(), tags: new Set(), maxPrice: 350, exact: false, active: null };
@@ -238,7 +236,15 @@ function popup(d) {
     ${tags ? `<div class="tags">${tags}</div>` : ""}
     ${PRECISION_NOTE[d.precision] ? `<p class="note">${PRECISION_NOTE[d.precision]}</p>` : ""}
     <a class="go" href="${esc(d.url)}" target="_blank" rel="noopener">Открыть у хозяина</a>
-    <a class="report" href="${esc(reportUrl(d))}" target="_blank" rel="noopener">Неточность?</a>
+    <details class="report">
+      <summary>Неточность?</summary>
+      <form class="report-form" data-id="${esc(d.id)}">
+        <textarea name="message" rows="2" maxlength="${MAX_REPORT_LENGTH}" placeholder="Что не так?" required></textarea>
+        <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off">
+        <button type="submit">Отправить</button>
+        <p class="report-status"></p>
+      </form>
+    </details>
   </div>`;
 }
 
@@ -321,6 +327,32 @@ function reset() {
   render(true);
 }
 
+async function submitReport(form) {
+  if (form.website.value) return; // honeypot: боты заполняют скрытое поле
+  const item = markers.get(form.dataset.id)?.options.item;
+  const message = form.message.value.trim();
+  if (!item || !message) return;
+  const status = form.querySelector(".report-status");
+  const btn = form.querySelector("button");
+  btn.disabled = true;
+  status.className = "report-status";
+  status.textContent = "Отправляем…";
+  try {
+    const res = await fetch(REPORT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: item.id, title: item.title, url: item.url, lat: item.lat, lon: item.lon, message }),
+    });
+    if (!res.ok) throw new Error();
+    status.textContent = "Спасибо, сообщили хозяину карты.";
+    form.reset();
+  } catch {
+    status.className = "report-status err";
+    status.textContent = "Не получилось отправить. Попробуйте позже.";
+    btn.disabled = false;
+  }
+}
+
 $("list").addEventListener("click", e => {
   const li = e.target.closest(".item");
   if (li) { track(`/select/${li.dataset.id}`, "Выбор из списка"); select(li.dataset.id); }
@@ -338,6 +370,12 @@ document.addEventListener("click", e => {
 $("q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
 $("price").addEventListener("input", e => { state.maxPrice = +e.target.value; $("priceOut").textContent = eur(state.maxPrice); render(); });
 $("exact").addEventListener("change", e => { state.exact = e.target.checked; render(); });
+document.addEventListener("submit", e => {
+  const form = e.target.closest(".report-form");
+  if (!form) return;
+  e.preventDefault();
+  submitReport(form);
+});
 $("sheetToggle").addEventListener("click", () => $("panel").classList.toggle("open"));
 map.on("popupclose", () => { if (state.active) { setActive(markers.get(state.active), false); state.active = null; } });
 if (window.LISTINGS_UPDATED) $("updated").textContent = "данные от " + window.LISTINGS_UPDATED.split("-").reverse().join(".");
