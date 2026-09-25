@@ -19,6 +19,14 @@ wildkarelia:
     - https://wildkarelia.johku.com/en_US/leirintaalueen-palvelut
   area: [62.7255326, 29.0186972]
 
+smashop:
+  name: SMA Group — Päremajat
+  section_paths:
+    - https://smashop.johku.com/en_US/elamysmajoitus
+    - https://smashop.johku.com/en_US/majoitus
+    - https://smashop.johku.com/fi_FI/elamysmajoitus  # fi_FI даёт другие имена тем же домикам (Pihka/Naava/Kaisla) — dedup по фото
+  area: [60.2966743, 24.5626272]
+
 hotellinuuksio:
   name: Hotelli Nuuksio
   section_paths:
