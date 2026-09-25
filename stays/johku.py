@@ -43,6 +43,7 @@ LABELS_FI = {
     "Asuinpinta-ala": "Living area",
     "Vuoteiden määrä": "Number of beds",
     "Lisävuoteet": "Extra beds",
+    "Rakentamisvuosi": "Construction year",
     "Remontointivuosi": "Renovation year",
     "Verkkosivusto": "Website",
     "Varustelu": "Facilities",
@@ -60,7 +61,7 @@ LABELS_FI = {
     "Aktiviteettien kuvaus": "Activities description",
     "Rajoitukset": "Restrictions",
 }
-SECTION_HEADINGS_FI = {"Perustiedot", "Ominaisuudet", "Tiedustelut", "Kuvat"}
+SECTION_HEADINGS_FI = {"Perustiedot", "Ominaisuudet", "Tiedustelut", "Kuvat", "Välimatkat"}
 ALL_SECTION_HEADINGS = SECTION_HEADINGS | SECTION_HEADINGS_FI
 # Метка -> канонический английский ключ, включая en_US (сама на себя).
 LABEL_ALIASES = {label: label for label in LABELS} | LABELS_FI

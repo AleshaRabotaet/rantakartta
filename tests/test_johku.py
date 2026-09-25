@@ -83,6 +83,26 @@ def test_finnish_product_page_parsed_by_labels():
     assert item.tags == ["car_needed", "lake", "pets", "sauna", "shore_sauna"]
 
 
+def test_finnish_construction_year_and_distances_heading_recognized():
+    """Найдено на реальной странице visitpuumala:ronola-lammaspaimeneksi (issue #6):
+    метка Rakentamisvuosi и заголовок Välimatkat не были в LABELS_FI/SECTION_HEADINGS_FI,
+    из-за чего значение Location "проглатывало" год постройки и расстояния как свой
+    текст, вместо того чтобы стать отдельными полями."""
+    html = (
+        "<html><head><meta property='og:title' content='B&amp;B Rönölä'></head><body>"
+        "<h1>Rönölä</h1><h3>Perustiedot</h3><dl>"
+        "<dt>Sijainti</dt><dd>Puumala<br>Matikkalantie 731, 58720 Kaartilankoski</dd>"
+        "<dt>Rakentamisvuosi</dt><dd>1800</dd>"
+        "</dl><h3>Ominaisuudet</h3><dl>"
+        "<dt>Rajoitukset</dt><dd>Lemmikkieläimet kielletty</dd>"
+        "</dl><h3>Välimatkat</h3><p>Sulkava 16 km</p>"
+        "</body></html>"
+    )
+    item = johku.parse_product(html, "u", "visitpuumala", "ronola-lammaspaimeneksi", 90.0)
+    assert item.address == "Matikkalantie 731, 58720 Kaartilankoski"
+    assert johku.has_street(item.address)
+
+
 def test_discover_product_urls_filters_by_prefix_and_depth():
     """Обход через googlesitemap.xml: берём только товарные страницы под известными
     префиксами (раздел жилья), не сам раздел и не посторонние страницы сайта."""
