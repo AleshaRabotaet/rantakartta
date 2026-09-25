@@ -6,6 +6,12 @@
 # merchants: точки хозяев (ключ = префикс slug до первого "-"), нужны, когда у объекта нет адреса с улицей.
 # area: запасная точка — центр муниципалитета.
 
+hotellinuuksio:
+  name: Hotelli Nuuksio
+  section_paths:
+    - https://hotellinuuksio.johku.com/en_US/accommodation
+  area: [60.2966743, 24.5626272]  # fi_FI (/fi_FI/hotelli-nuuksio) — те же 3 номера, тот же slug, не дублируем
+
 visitpuumala:
   name: Visit Puumala
   section_paths:
