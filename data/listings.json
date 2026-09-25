@@ -1315,7 +1315,7 @@
   "url": "https://tervarumpu.fi/fi_FI/majoittuminen-repovedella/harjulanmokit-jakalatupa",
   "price_from": 72.0,
   "currency": "EUR",
-  "beds": null,
+  "beds": 5,
   "address": "Ukkolammentie 151,  52920 Voikoski (Kouvola)",
   "lat": 61.19,
   "lon": 26.88,
