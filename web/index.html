@@ -180,7 +180,8 @@ function reportUrl(d) {
 }
 
 const data = (window.LISTINGS || []).filter(d => d.lat != null);
-const state = { q: "", types: new Set(), tags: new Set(), maxPrice: 350, exact: false, active: null };
+const DEFAULT_MAX_PRICE = 350;
+const state = { q: "", types: new Set(), tags: new Set(), maxPrice: DEFAULT_MAX_PRICE, exact: false, active: null };
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const eur = n => n == null ? "?" : "€" + Math.round(n);
@@ -284,6 +285,7 @@ function render(fit) {
   if (fit && shown.length) map.fitBounds(L.latLngBounds(shown.map(d => [d.lat, d.lon])).pad(0.15));
 
   $("count").textContent = `${shown.length} из ${data.length}`;
+  syncHash();
   const list = $("list");
   if (!shown.length) {
     list.innerHTML = `<li class="empty">Под фильтры ничего не подходит. <button id="reset">Сбросить фильтры</button></li>`;
@@ -313,12 +315,40 @@ function select(id, open = true) {
   setActive(m, true);
   document.querySelectorAll(".item").forEach(li => li.classList.toggle("active", li.dataset.id === id));
   if (open) cluster.zoomToShowLayer(m, () => m.openPopup());
+  syncHash();
 }
 
 function reset() {
-  state.q = ""; state.types.clear(); state.tags.clear(); state.maxPrice = 350; state.exact = false;
-  $("q").value = ""; $("price").value = 350; $("priceOut").textContent = "€350"; $("exact").checked = false;
+  state.q = ""; state.types.clear(); state.tags.clear(); state.maxPrice = DEFAULT_MAX_PRICE; state.exact = false;
+  $("q").value = ""; $("price").value = DEFAULT_MAX_PRICE; $("priceOut").textContent = eur(DEFAULT_MAX_PRICE); $("exact").checked = false;
   render(true);
+}
+
+// ---------- ссылка (hash отражает фильтры и выбранный объект) ----------
+function hashToState() {
+  const p = new URLSearchParams(location.hash.slice(1));
+  if (p.has("q")) state.q = p.get("q").trim().toLowerCase();
+  for (const t of (p.get("type") || "").split(",")) if (TYPES[t]) state.types.add(t);
+  for (const t of (p.get("tags") || "").split(",")) if (TAGS[t]) state.tags.add(t);
+  if (p.has("max")) {
+    const n = +p.get("max");
+    if (Number.isFinite(n)) state.maxPrice = Math.min(Math.max(n, +$("price").min), +$("price").max);
+  }
+  if (p.get("exact") === "1") state.exact = true;
+  const id = p.get("id");
+  return id && markers.has(id) ? id : null;
+}
+
+function syncHash() {
+  const p = new URLSearchParams();
+  if (state.q) p.set("q", state.q);
+  if (state.types.size) p.set("type", [...state.types].join(","));
+  if (state.tags.size) p.set("tags", [...state.tags].join(","));
+  if (state.maxPrice !== DEFAULT_MAX_PRICE) p.set("max", state.maxPrice);
+  if (state.exact) p.set("exact", "1");
+  if (state.active) p.set("id", state.active);
+  const hash = p.toString();
+  history.replaceState(null, "", hash ? `#${hash}` : location.pathname + location.search);
 }
 
 $("list").addEventListener("click", e => {
@@ -339,10 +369,15 @@ $("q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerC
 $("price").addEventListener("input", e => { state.maxPrice = +e.target.value; $("priceOut").textContent = eur(state.maxPrice); render(); });
 $("exact").addEventListener("change", e => { state.exact = e.target.checked; render(); });
 $("sheetToggle").addEventListener("click", () => $("panel").classList.toggle("open"));
-map.on("popupclose", () => { if (state.active) { setActive(markers.get(state.active), false); state.active = null; } });
+map.on("popupclose", () => { if (state.active) { setActive(markers.get(state.active), false); state.active = null; syncHash(); } });
 if (window.LISTINGS_UPDATED) $("updated").textContent = "данные от " + window.LISTINGS_UPDATED.split("-").reverse().join(".");
 
+const initialId = hashToState();
+$("q").value = state.q;
+$("price").value = state.maxPrice; $("priceOut").textContent = eur(state.maxPrice);
+$("exact").checked = state.exact;
 render(true);
+if (initialId) select(initialId);
 </script>
 </body>
 </html>
