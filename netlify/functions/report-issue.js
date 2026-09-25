@@ -2,6 +2,9 @@
 // сервисного токена — так пользователю не нужно логиниться в GitHub.
 // Требует секрет GITHUB_TOKEN (fine-grained PAT, только Issues: Write на этот репозиторий).
 const REPO = "AleshaRabotaet/rantakartta";
+// Все отчёты копятся комментариями в одном issue вместо issue на каждое обращение —
+// см. docs/decisions.md. Поменять при пересоздании issue-коллектора.
+const COLLECTOR_ISSUE_NUMBER = 32;
 // Прод-сайт на GitHub Pages + сам Netlify-сайт (прод и deploy-preview/branch-деплои
 // вида deploy-preview-30--rantakartta.netlify.app) — превью нужны, чтобы форму можно
 // было проверить до мержа PR.
@@ -57,8 +60,8 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers: CORS_HEADERS, body: "Server misconfigured" };
   }
 
-  const issueTitle = `Неточность: ${title} (${id})`;
-  const issueBody = [
+  const commentBody = [
+    `### Неточность: ${title} (${id})`,
     `Объект: ${id}`,
     `Название: ${title}`,
     `Ссылка у хозяина: ${url ?? "—"}`,
@@ -68,7 +71,7 @@ exports.handler = async (event) => {
     message.trim(),
   ].join("\n");
 
-  const res = await fetch(`https://api.github.com/repos/${REPO}/issues`, {
+  const res = await fetch(`https://api.github.com/repos/${REPO}/issues/${COLLECTOR_ISSUE_NUMBER}/comments`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -76,17 +79,17 @@ exports.handler = async (event) => {
       "Content-Type": "application/json",
       "User-Agent": "rantakartta-report-form",
     },
-    body: JSON.stringify({ title: issueTitle, body: issueBody, labels: ["data"] }),
+    body: JSON.stringify({ body: commentBody }),
   });
 
   if (!res.ok) {
     return { statusCode: 502, headers: CORS_HEADERS, body: "GitHub API error" };
   }
 
-  const issue = await res.json();
+  const comment = await res.json();
   return {
     statusCode: 200,
     headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
-    body: JSON.stringify({ html_url: issue.html_url }),
+    body: JSON.stringify({ html_url: comment.html_url }),
   };
 };
