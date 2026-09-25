@@ -69,7 +69,8 @@ LABEL_ALIASES = {label: label for label in LABELS} | LABELS_FI
 
 # Всё, что продаётся в разделе жилья, но жильём не является.
 EXCLUDE_TITLE_RE = re.compile(
-    r"gift card|lahjakortti|paddling tour|canoeing tour|route|melontareitti|yleinen savusauna",
+    r"gift card|lahjakortti|paddling tour|canoeing tour|route|melontareitti|yleinen savusauna"
+    r"|meeting room|banquet hall|hot tub in a trailer",
     re.I,
 )
 

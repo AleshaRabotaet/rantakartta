@@ -36,6 +36,16 @@ def test_gift_cards_and_tours_skipped():
     assert johku.parse_product(html, "u", "s", "okkola-lahjakortti", 100.0) is None
 
 
+def test_meeting_room_and_equipment_rental_skipped():
+    """Найдено на wildkarelia (issue #6): переговорка/банкетный зал и мобильная бочка-
+    джакузи напрокат продаются в том же разделе, что и жильё, но это не жильё —
+    переночевать там нельзя."""
+    for title in ("Meeting Room or Banquet Hall (80 people)", '"Saunatupa" meeting room & sauna',
+                  "Hot tub in a trailer with the lid"):
+        html = f"<html><body><h1>{title}</h1></body></html>"
+        assert johku.parse_product(html, "u", "wildkarelia", "x", 100.0) is None
+
+
 def test_shared_sauna_slot_skipped():
     """Найдено на hugonkauppa (issue #6): общая (не персональная) сауна продаётся как
     отдельный товар в разделе жилья, но это не жильё — забронировать можно только время
