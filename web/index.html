@@ -140,6 +140,16 @@ h1 { font: 800 34px/1 var(--cond); letter-spacing: -0.01em; margin: 0 0 6px; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
 <script src="data.js"></script>
 <script>
+const GOATCOUNTER_CODE = "rantakartta"; // https://rantakartta.goatcounter.com/
+
+(() => {
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "//gc.zgo.at/count.js";
+  s.dataset.goatcounter = `https://${GOATCOUNTER_CODE}.goatcounter.com/count`;
+  document.head.appendChild(s);
+})();
+
 const TYPES = {
   villa:    { label: "Вилла",   color: "var(--t-villa)" },
   cottage:  { label: "Коттедж", color: "var(--t-cottage)" },
@@ -174,6 +184,12 @@ const state = { q: "", types: new Set(), tags: new Set(), maxPrice: 350, exact: 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const eur = n => n == null ? "?" : "€" + Math.round(n);
+
+function track(path, title) {
+  try {
+    window.goatcounter?.count({ path, title, event: true });
+  } catch (e) { /* блокировщик рекламы или скрипт не загрузился */ }
+}
 
 // ---------- карта ----------
 const map = L.map("map", { zoomControl: true, preferCanvas: false }).setView([61.5, 28.1], 9);
@@ -249,7 +265,10 @@ function renderChips(el, defs, set, key, counter) {
     b.setAttribute("aria-pressed", set.has(k));
     b.innerHTML = (def.color ? `<span class="dot" style="background:${def.color}"></span>` : "") +
       `${esc(def.label || def)} <span class="n">${n}</span>`;
-    b.onclick = () => { set.has(k) ? set.delete(k) : set.add(k); render(); };
+    b.onclick = () => {
+      if (set.has(k)) { set.delete(k); } else { set.add(k); track(`/filter/${key}/${k}`, `Фильтр: ${key}=${k}`); }
+      render();
+    };
     el.appendChild(b);
   }
   if (!el.children.length) el.style.display = "none"; else el.style.display = "";
@@ -302,8 +321,20 @@ function reset() {
   render(true);
 }
 
-$("list").addEventListener("click", e => { const li = e.target.closest(".item"); if (li) select(li.dataset.id); });
-$("list").addEventListener("keydown", e => { if (e.key === "Enter") { const li = e.target.closest(".item"); if (li) select(li.dataset.id); } });
+$("list").addEventListener("click", e => {
+  const li = e.target.closest(".item");
+  if (li) { track(`/select/${li.dataset.id}`, "Выбор из списка"); select(li.dataset.id); }
+});
+$("list").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const li = e.target.closest(".item");
+  if (li) { track(`/select/${li.dataset.id}`, "Выбор из списка"); select(li.dataset.id); }
+});
+document.addEventListener("click", e => {
+  if (e.target.closest(".pop .go") && state.active) {
+    track(`/click/open-host/${state.active}`, "Открыть у хозяина");
+  }
+});
 $("q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
 $("price").addEventListener("input", e => { state.maxPrice = +e.target.value; $("priceOut").textContent = eur(state.maxPrice); render(); });
 $("exact").addEventListener("change", e => { state.exact = e.target.checked; render(); });
